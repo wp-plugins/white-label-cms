@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: White Label CMS
-Plugin URI: http://www.videousermanuals/white-label-cms/
+Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
 Version: 1.0.5
 Author: www.videousermanuals.com
