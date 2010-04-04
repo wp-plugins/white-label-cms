@@ -36,7 +36,7 @@ All custom images should be uploaded to the current themes image directory.
 The default filenames for the logo images are:
 Header Logo: custom-logo.gif
 Footer Logo: custom-logo.gif
-Custom Login Logo: custom-login-logo.gif
+Custom Login Logo: custom_login_logo.gif
 
 == Upgrade Notice ==
 
