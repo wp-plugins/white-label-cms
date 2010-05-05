@@ -43,8 +43,19 @@ p#safari-fix {
 	border-bottom:1px solid #ddd;
 	border-top:1px solid #fff;
 }
+.wlcms_input_profile {
+	padding:30px 10px 10px 10px;
+}
+.wlcms_checkbox_last {
+	padding:10px 10px 30px 10px;
+	border-bottom:1px solid #ddd;
+}
 .wlcms_input_local_video {
-	padding:10px;
+	padding: 10px;
+}
+.wlcms_input_message {
+	padding: 10px 10px 0;
+	border-bottom: none;
 }
 .wlcms_input_welcome_last {
 	padding:10px 10px 30px 10px;
@@ -150,6 +161,15 @@ p#safari-fix {
 .wlcms_opts label.radioyesno {
 	width: 50px;
 }
+.wlcms_opts label.radioCustom {
+	width: 80px;
+}
+.wlcms_opts label.radioWebsite {
+	width: 80px;
+}
+.wlcms_opts label.radioBlog {
+	width: 60px;
+}
 .pretty-hover {
 	background-color: #EEEEEE;
 }
@@ -161,4 +181,10 @@ padding:10px 10px;
 #wlcm-reset {
 	margin: 0;
 	padding-top: 0;
+}
+.wlcms-icon32 {
+float:left;
+height:36px;
+margin:0 6px 0 0;
+width:36px;
 }

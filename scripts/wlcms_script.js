@@ -43,4 +43,40 @@
 				
 			jQuery(this).parent().next('.wlcms_options').slideToggle('slow');	
 		});
+		
+		jQuery('#radioWebsite').click(function() {
+			jQuery('input[name=wlcms_o_hide_posts]').attr('checked', true);
+			jQuery('input[name=wlcms_o_hide_media]').attr('checked', false);
+			jQuery('input[name=wlcms_o_hide_links]').attr('checked', true);
+			jQuery('input[name=wlcms_o_hide_pages]').attr('checked', false);			
+			jQuery('input[name=wlcms_o_hide_comments]').attr('checked', true);
+			jQuery('input[name=wlcms_o_hide_profile]').attr('checked', true);			
+			jQuery('input[name=wlcms_o_hide_tools]').attr('checked', true);
+			jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true);			
+		});
+
+		jQuery('#radioBlog').click(function() {
+			jQuery('input[name=wlcms_o_hide_posts]').attr('checked', false);
+			jQuery('input[name=wlcms_o_hide_media]').attr('checked', false);
+			jQuery('input[name=wlcms_o_hide_links]').attr('checked', true);
+			jQuery('input[name=wlcms_o_hide_pages]').attr('checked', false);			
+			jQuery('input[name=wlcms_o_hide_comments]').attr('checked', false);
+			jQuery('input[name=wlcms_o_hide_profile]').attr('checked', true);			
+			jQuery('input[name=wlcms_o_hide_tools]').attr('checked', true);
+			jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true);			
+		});
+
+		jQuery('#radioCustom').click(function() {
+			if (jQuery('#wlcms_o_hide_posts').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_posts]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_posts]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_media').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_media]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_media]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_links').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_links]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_links]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_pages').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_pages]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_pages]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_comments').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_comments]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_comments]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_profile').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_profile]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_profile]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_tools').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_tools]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_tools]').attr('checked', false); }			
+			if (jQuery('#wlcms_o_hide_separator2').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', false); }			
+		});
+		
+		
+		
 });

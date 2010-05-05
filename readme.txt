@@ -3,19 +3,23 @@
 Contributors: b.porteous, t.dean, m.rupisan
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
-Tags: cms, custom, admin, branding, dashboard, administration, plugin, login, client
+Tags: cms, custom, admin, branding, dashboard, administration, plugin, login, client, menu, navigation
 Author URI: http://www.videousermanuals.com
 Author:  Video User Manuals
 Donate link: 
 Requires at least: 2.8 
 Tested up to: 2.9.2
-Stable tag: 1.0.5
-Version: 1.0.5
+Stable tag: 1.1
+Version: 1.1
 
-Allows removal of all dashboard panels, add your own custom panel, insert custom logos in header/footer and login page.
+Allows removal of menus, all dashboard panels, add your own custom panel, insert custom logos in header/footer and login page.
 
 == Description ==
-The White Label CMS plugin allows you to remove all the panels from the Wordpress dashboard and insert your own panel, which you can use to write a personalised message to your client and link to the important elements in the CMS.
+The White Label CMS plugin is for developers who want to give their clients a more personalised and less confusing CMS.
+
+You have the ability to choose which menus appear.  We have 3 CMS profiles of Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to user role of Editor and below.
+
+White Label CMS allows you to remove all the panels from the Wordpress dashboard and insert your own panel, which you can use to write a personalised message to your client and link to the important elements in the CMS.
 
 It also allows you to add custom logos to the header and footer as well as the all important login page, giving your client a better branded experience of using their new website.
 
@@ -36,7 +40,9 @@ All custom images should be uploaded to the current themes image directory.
 The default filenames for the logo images are:
 Header Logo: custom-logo.gif
 Footer Logo: custom-logo.gif
-Custom Login Logo: custom_login_logo.gif
+Custom Login Logo: custom-login-logo.gif
+
+In order to specify a with for the Header Logo or Footer Logo, please ensure you append px to the number.
 
 == Upgrade Notice ==
 
@@ -46,6 +52,10 @@ Custom Login Logo: custom_login_logo.gif
 3. The options menu for the plugin
 
 == Changelog ==
+= 1.1 =
+Ability to remove menus
+Added widths for header and footer logos.
+
 = 1.0.5 =
 Updated terminology
 
@@ -64,6 +74,9 @@ For developers who handover websites to their clients and use Wordpress as a CMS
 
 =How to I add links to my own panel?=
 Your custom panel accepts html, so just write the markup as you normally would in html.
+
+=How do I remove menu items?=
+Click on the Remove Menus section and either choose a CMS profile, or manually select which menu items to be removed. Please not this will only effect user roles of Editor and below. So you will need to logout in order to see the difference.
 
 =How do you recommend using this plugin?=
 We have been using this for a number of months now, and we have found clients respond best when it is set up in the following fashion:

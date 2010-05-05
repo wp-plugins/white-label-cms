@@ -3,7 +3,7 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.0.5
+Version: 1.1
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
@@ -25,9 +25,9 @@ function wlcms_add_menu() {
 	</style>
 
 		
-	<p>The purpose of this plugin is to help developers hand over a white label version of Wordpress to their clients, which looks more professional, and removes some of the unnecessary and confusing clutter from the dashboard.</p>
+	<p>The purpose of this plugin is to help developers hand over a white label version of Wordpress to their clients, which looks more professional, and removes some of the unnecessary and confusing clutter from the dashboard and the menu system.</p>
 	
-	<p>We tried to make this as simple as possible so the options should be self explanatory.  There are really only 2 things that need explanation.</p>
+	<p>We tried to make this as simple as possible so the options should be self explanatory.  There are really only 3 things that need explanation.</p>
 
 	<p style=\"font-size:9px; margin-bottom:10px;\">Icons: <a href=\"http://www.woothemes.com/2009/09/woofunction/\">WooFunction</a></p>
 	
@@ -37,8 +37,15 @@ function wlcms_add_menu() {
 	<h4>The Custom Dashboard Panel</h4>
 	<p>We usually add a personalised introduction for each client, and add out contact details, and a link to our help desk. We feel that this gives a more professional handover to our clients. You can use it any way you want, but please remember to use HTML code.</p>
 
+	<h4>Remove Menus</h4>
+	<p>Who uses the links and tools menu? No one! To give your client a better experience of WordPress we have made it possible to remove the menu items.  You can set it to custom, and choose yourself which menus to remove. Website or Blog, will show only menus related to running that type of CMS.</p>
+	<p>The important thing to note that the menus will only change for users with the role of Editor or below. You will need to log and log in as the editor in order to see how it looks.</p>
+	<h5>Why The Editor Role?</h5>
+	<p>The vast majority of developers give their clients only Editor access, for obvious reasons.  This plugin is designed for the majority of WordPress developers to quickly be able to give their clients the best experience of WordPress. If you want to modify what menus appear for the Administrator then we recommend this <a href='http://wordpress.org/extend/plugins/adminimize/'>great plugin</a>.</p> 
+
 	<h4>Troubleshooting</h4>
 	<p><strong>I installed the plugin and the logos disappear?:</strong> You need to upload your logos to you current themes images directory.</p>
+	<p><strong>The menus have not changes?:</strong> Make sure you are logged in as the editor</p>
 	
 	<p>This plugin is sponsored by: <a href=\"http://www.videousermanuals.com?ref=whitelabelcmsplugin\" target=\"_blank\">Video User Manuals</a></p>
 
@@ -70,8 +77,8 @@ function wlcms_remove_right_now() {
 function wlcms_custom_logo() {
    echo '
 	  <style type="text/css">
-		 #header-logo { background-image: url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_header_custom_logo') . ') !important; }
-	  </style>
+		 #header-logo { background-image: url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_header_custom_logo') . ') !important; width: ' . get_option('wlcms_o_header_custom_logo_width') . '; }
+	  </style>  
    ';
 }
 
@@ -79,9 +86,9 @@ function wlcms_custom_logo() {
 function wlcms_remove_footer_admin() {
     echo '<div id="wlcms-footer-container">';
     if (get_option('wlcms_o_developer_url')) {
-		echo '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '"><img src="'.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_footer_custom_logo') . '" id="wlcms-footer-logo"> ' . get_option('wlcms_o_developer_name') . '</a>';
+		echo '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '"><img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . ';" src="'.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_footer_custom_logo') . '" id="wlcms-footer-logo"> ' . get_option('wlcms_o_developer_name') . '</a>';
 	} else {
-		echo '<img src="'.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_footer_custom_logo') . '" id="wlcms-footer-logo"> ' . get_option('wlcms_o_developer_name');
+		echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . ';" src="'.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_footer_custom_logo') . '" id="wlcms-footer-logo"> ' . get_option('wlcms_o_developer_name');
 	}
 	echo '</div><p id="safari-fix"';
 }
@@ -148,6 +155,54 @@ function my_contextual_help($text) {
 add_action('contextual_help', 'my_contextual_help');
 
 
+// remove unnecessary menus
+function remove_admin_menus () {
+	global $menu;
+
+	$restrict_user[0] = '';
+	if (get_option('wlcms_o_hide_posts')) { array_push($restrict_user,'Posts'); }
+	if (get_option('wlcms_o_hide_media')) { array_push($restrict_user,'Media'); }
+	if (get_option('wlcms_o_hide_links')) { array_push($restrict_user,'Links'); }
+	if (get_option('wlcms_o_hide_pages')) { array_push($restrict_user,'Pages'); }
+	if (get_option('wlcms_o_hide_comments')) { array_push($restrict_user,'Comments'); }
+	if (get_option('wlcms_o_hide_profile')) { array_push($restrict_user,'Profile'); }
+	if (get_option('wlcms_o_hide_tools')) { array_push($restrict_user,'Tools'); }
+	if (get_option('wlcms_o_hide_users')) { array_push($restrict_user,'Users'); }
+	
+	if (get_option('wlcms_o_hide_separator2')) {  $hideSeparator2 = true; } else { $hideSeparator2 = false; };
+
+	unset($restrict_user[0]);
+	
+	if (sizeof($restrict_user) > 0) {
+	
+		// WP localization
+		$f = create_function('$v,$i', 'return __($v);');
+		
+		if (!current_user_can('activate_plugins')) {
+			array_walk($restrict_user, $f);
+
+			// remove menus
+			end($menu);
+			while (prev($menu)) {
+				$k = key($menu);
+				$v = explode(' ', $menu[$k][0]);
+				$s = explode(' ', $menu[$k][2]);
+				
+				if (($hideSeparator2) && ($s[0] == 'separator2')) {
+					unset($menu[$k]);
+				}
+				
+				if(in_array(is_null($v[0]) ? '' : $v[0] , $restrict_user)) unset($menu[$k]);
+				
+			}			
+		}
+	}
+}
+add_action('admin_menu', 'remove_admin_menus');
+
+
+
+
 /**********************************/
 /*  Admin Page */
 /**********************************/
@@ -187,19 +242,31 @@ array( "name" => "Hide Nag Update",
 	"std" => 1),
 
 array( "name" => "Custom Header Logo",
-	"desc" => "This is the logo that will appear in the header.  It should be a transparent .gif or.png and about 30px by 30px. You should upload the logo to the current theme /images/ directory",
+	"desc" => "This is the logo that will appear in the header.  It should be a transparent .gif or.png and about 32px by 32px. You should upload the logo to the current theme /images/ directory",
 	"id" => $wlcmsShortName."_header_custom_logo",
 	"type" => "text",
 	"std" => 'custom-logo.gif'),
 
+array( "name" => "Custom Header Logo Width",
+	"desc" => "Leave blank for default value of 32px. Make sure you append px. For example 100px",
+	"id" => $wlcmsShortName."_header_custom_logo_width",
+	"type" => "text",
+	"std" => ''),
+
 array( "name" => "Custom Footer Logo",
-	"desc" => "This is the logo that will appear in the footer.  It should be a transparent .gif or.png and about 30px by 30px. You should upload the logo to the current theme /images/ directory",
+	"desc" => "This is the logo that will appear in the footer.  It should be a transparent .gif or.png and about 32px by 32px. You should upload the logo to the current theme /images/ directory",
 	"id" => $wlcmsShortName."_footer_custom_logo",
 	"type" => "text",
 	"std" => 'custom-logo.gif'),
+
+array( "name" => "Custom Footer Logo Width",
+	"desc" => "Leave blank for default value of 32px. Make sure you append px. For example 100px",
+	"id" => $wlcmsShortName."_footer_custom_logo_width",
+	"type" => "text",
+	"std" => ''),
 	
 array( "name" => "Developer Website URL",
-	"desc" => "There will be a link to your website in the footer.  Leave it as blank if you don't want the otherwise please include http://",
+	"desc" => "There will be a link to your website in the footer.  Leave it blank if you don't want the link otherwise please include http://",
 	"id" => $wlcmsShortName."_developer_url",
 	"type" => "text",
 	"std" => ''),	
@@ -234,7 +301,7 @@ array( "name" => "Add You Own Welcome Panel?",
 	"options" => array("1", "0"),
 	"std" => 0 ),	
 
-array( "name" => "Video Variables",
+array( "name" => "Welcome Panel Settings",
 	"type" => "subsectionvars"),
 
 array( "name" => "Title",
@@ -248,9 +315,73 @@ array( "name" => "Description",
 	"id" => $wlcmsShortName."_welcome_text",
 	"type" => "textarea",
 	"std" => ''),		
-		
-		
+
+array( "type" => "close"),
+
+array( "name" => "Remove Menus",
+	"type" => "section"),
+array( "type" => "open"),
+
+array( "name" => "These changes will only effect people with the user role of <strong>Editor</strong> or below.  You are currently logged is as the admin, so you will not see any changes in the menus until you login with a different user role.",
+	"type" => "message"),
+
+array( "name" => "Choose A CMS Profile",
+	"desc" => "Which profile best fits your clients needs?",
+	"id" => $wlcmsShortName."_hide_profile",
+	"type" => "radioprofile",
+	"options" => array("1", "2","3"),
+	"std" => '1'),	
+	
+array( "name" => "Hide Posts Menu",
+	"desc" => "Hides Posts from left menu",
+	"id" => $wlcmsShortName."_hide_posts",
+	"type" => "checkbox",
+	"std" => 0),	
+
+array( "name" => "Hide Media Menu",
+	"desc" => "Hides Media from left menu",
+	"id" => $wlcmsShortName."_hide_media",
+	"type" => "checkbox",
+	"std" => 0),			
+
+array( "name" => "Hide Links Menu",
+	"desc" => "Hides Links from left menu",
+	"id" => $wlcmsShortName."_hide_links",
+	"type" => "checkbox",
+	"std" => 0),
+
+array( "name" => "Hide Pages Menu",
+	"desc" => "Hides Pages from left menu",
+	"id" => $wlcmsShortName."_hide_pages",
+	"type" => "checkbox",
+	"std" => 0),
+
+array( "name" => "Hide Comments Menu",
+	"desc" => "Hides Comments from left menu",
+	"id" => $wlcmsShortName."_hide_comments",
+	"type" => "checkbox",
+	"std" => 0),
+	
+array( "name" => "Hide Users Menu",
+	"desc" => "Hides Users from left menu",
+	"id" => $wlcmsShortName."_hide_users",
+	"type" => "checkbox",
+	"std" => 0),	
+
+array( "name" => "Hide Tools Menu",
+	"desc" => "Hides Tools from left menu",
+	"id" => $wlcmsShortName."_hide_tools",
+	"type" => "checkbox",
+	"std" => 0),
+
+array( "name" => "Hide 2nd Separator",
+	"desc" => "Hides 2nd separator",
+	"id" => $wlcmsShortName."_hide_separator2",
+	"type" => "checkboxlast",
+	"std" => 0),
+
 array( "type" => "close")
+
 );
 
 
@@ -274,8 +405,9 @@ if ( $_GET['page'] == 'wlcms-plugin.php') {
 		foreach ($wlcmsOptions as $value) {
 		update_option( $value['id'], $_REQUEST[ $value['id'] ] ); }
  
-foreach ($wlcmsOptions as $value) {
-	if( isset( $_REQUEST[ $value['id'] ] ) ) { update_option( $value['id'], $_REQUEST[ $value['id'] ]  ); } else { delete_option( $value['id'] ); } }
+		foreach ($wlcmsOptions as $value) {
+			if( isset( $_REQUEST[ $value['id'] ] ) ) { update_option( $value['id'], $_REQUEST[ $value['id'] ]  ); } else { delete_option( $value['id'] ); } 
+		}
  
 	header("Location: admin.php?page=wlcms-plugin.php&saved=true");
 die;
@@ -342,14 +474,25 @@ case "title":
  
 case 'text':
 ?>
+<?php if ($value['id']=='wlcms_o_header_custom_logo' || $value['id']=='wlcms_o_footer_custom_logo' )  {  ?>
 
+<div style="border:0;" class="wlcms_input wlcms_text">
+	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
+ 	<input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" type="<?php echo $value['type']; ?>" value="<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id'])  ); } else { echo $value['std']; } ?>" />
+ <small><?php echo $value['desc']; ?></small>
+<div class="clearfix"></div>
+ 
+ </div>
+ 
+<?php } else {       ?>
 <div class="wlcms_input wlcms_text">
 	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
  	<input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" type="<?php echo $value['type']; ?>" value="<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id'])  ); } else { echo $value['std']; } ?>" />
  <small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
  
  </div>
- 
+
+<?php }  ?>
  <?php break;
  case 'textlocalvideo':
 ?>
@@ -359,6 +502,12 @@ case 'text':
  	<input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" type="text" value="<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id'])  ); } else { echo $value['std']; } ?>" />
  <small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
  
+ </div>
+  <?php break;
+ case 'message':
+?>
+<div class="wlcms_input_message wlcms_text">
+	<div id="icon-users" class="wlcms-icon32"><br></div><?php echo $value['name']; ?>
  </div>
 <?php
 break;
@@ -391,14 +540,15 @@ case 'select':
 </div>
 <?php
 break;
+ case "checkboxlast":
  case "checkbox":
 ?>
 
-<div class="wlcms_input wlcms_checkbox">
+<div class="<?php if($value['type']  == 'checkbox') { echo 'wlcms_input_local_video'; } else { echo 'wlcms_checkbox_last'; }?> wlcms_checkbox">
 	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
 	
-<?php if(get_option($value['id'])){ $checked = "checked=\"checked\""; }else{ $checked = "";} ?>
-<input type="checkbox" name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" value="true" <?php echo $checked; ?> />
+<?php if(get_option($value['id'])){ $checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked'; }else{ $checked = ""; $remChecked = '';} ?>
+<input type="checkbox" name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" value="true" <?php echo $checked; ?> class="<?php echo $remChecked; ?>" />
 
 
 	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
@@ -422,6 +572,40 @@ $counter++;
 
 	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
  </div>
+<?php break; 
+case "radioprofile":
+?>
+
+<div class="wlcms_input_profile" <?php if($value['id'] == 'wlcms_o_show_welcome') { echo ' id="form-show-welcome" '; }?> >
+	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
+
+<?php 
+$counter = 1;
+foreach ($value['options'] as $option) { ?>
+		<?php 
+			switch ($counter) {
+				case 1:
+					$profileName = 'Custom';
+					if(get_option($value['id']) ==  1){ $checked = "checked=\"checked\""; }else{ $checked = ""; }
+					break;
+				case 2:
+					$profileName = 'Website';
+					if(get_option($value['id']) ==  2){ $checked = "checked=\"checked\""; }else{ $checked = ""; }
+					break;
+				case 3:
+					$profileName = 'Blog';
+					if(get_option($value['id']) ==  3){ $checked = "checked=\"checked\""; }else{ $checked = ""; }					
+					break;
+			}		
+		?>
+		<label class="radio<?php echo $profileName;?>"><?php echo $profileName;?><input type="radio" name="wlcms_o_radio_profiles" class="<?php echo $value['id']; ?>" value="<?php echo $counter; ?>" <?php echo $checked; ?> id="radio<?php echo $profileName; ?>" /></label>
+<?php
+$counter++;
+}
+?>
+
+	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
+ </div> 
 <?php break; 
 case "section":
 
