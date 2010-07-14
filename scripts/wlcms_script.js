@@ -50,9 +50,11 @@
 			jQuery('input[name=wlcms_o_hide_links]').attr('checked', true);
 			jQuery('input[name=wlcms_o_hide_pages]').attr('checked', false);			
 			jQuery('input[name=wlcms_o_hide_comments]').attr('checked', true);
-			jQuery('input[name=wlcms_o_hide_profile]').attr('checked', true);			
+			jQuery('input[name=wlcms_o_hide_users]').attr('checked', true);			
 			jQuery('input[name=wlcms_o_hide_tools]').attr('checked', true);
-			jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true);			
+			jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true);		
+			jQuery('input[name=wlcms_o_show_appearance]').attr('checked', false);		
+			jQuery('input[name=wlcms_o_show_widgets]').attr('checked', false);					
 		});
 
 		jQuery('#radioBlog').click(function() {
@@ -61,9 +63,11 @@
 			jQuery('input[name=wlcms_o_hide_links]').attr('checked', true);
 			jQuery('input[name=wlcms_o_hide_pages]').attr('checked', false);			
 			jQuery('input[name=wlcms_o_hide_comments]').attr('checked', false);
-			jQuery('input[name=wlcms_o_hide_profile]').attr('checked', true);			
+			jQuery('input[name=wlcms_o_hide_users]').attr('checked', true);			
 			jQuery('input[name=wlcms_o_hide_tools]').attr('checked', true);
 			jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true);			
+			jQuery('input[name=wlcms_o_show_appearance]').attr('checked', false);		
+			jQuery('input[name=wlcms_o_show_widgets]').attr('checked', false);					
 		});
 
 		jQuery('#radioCustom').click(function() {
@@ -72,9 +76,12 @@
 			if (jQuery('#wlcms_o_hide_links').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_links]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_links]').attr('checked', false); }
 			if (jQuery('#wlcms_o_hide_pages').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_pages]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_pages]').attr('checked', false); }
 			if (jQuery('#wlcms_o_hide_comments').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_comments]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_comments]').attr('checked', false); }
-			if (jQuery('#wlcms_o_hide_profile').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_profile]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_profile]').attr('checked', false); }
+			if (jQuery('#wlcms_o_hide_users').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_users]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_users]').attr('checked', false); }
 			if (jQuery('#wlcms_o_hide_tools').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_tools]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_tools]').attr('checked', false); }			
 			if (jQuery('#wlcms_o_hide_separator2').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_separator2]').attr('checked', false); }			
+			if (jQuery('#wlcms_o_show_appearance').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_show_appearance]').attr('checked', true); } else { jQuery('input[name=wlcms_o_show_appearance]').attr('checked', false); }			
+			if (jQuery('#wlcms_o_show_widgets').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_show_widgets]').attr('checked', true); } else { jQuery('input[name=wlcms_o_show_widgets]').attr('checked', false); }			
+
 		});
 		
 		

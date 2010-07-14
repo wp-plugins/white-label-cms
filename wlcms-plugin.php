@@ -3,7 +3,7 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.1
+Version: 1.2
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
@@ -37,15 +37,25 @@ function wlcms_add_menu() {
 	<h4>The Custom Dashboard Panel</h4>
 	<p>We usually add a personalised introduction for each client, and add out contact details, and a link to our help desk. We feel that this gives a more professional handover to our clients. You can use it any way you want, but please remember to use HTML code.</p>
 
-	<h4>Remove Menus</h4>
+	<h4>Modify Menus</h4>
 	<p>Who uses the links and tools menu? No one! To give your client a better experience of WordPress we have made it possible to remove the menu items.  You can set it to custom, and choose yourself which menus to remove. Website or Blog, will show only menus related to running that type of CMS.</p>
 	<p>The important thing to note that the menus will only change for users with the role of Editor or below. You will need to log and log in as the editor in order to see how it looks.</p>
 	<h5>Why The Editor Role?</h5>
 	<p>The vast majority of developers give their clients only Editor access, for obvious reasons.  This plugin is designed for the majority of WordPress developers to quickly be able to give their clients the best experience of WordPress. If you want to modify what menus appear for the Administrator then we recommend this <a href='http://wordpress.org/extend/plugins/adminimize/'>great plugin</a>.</p> 
 
+	<h4>The Appearance Menu</h4>
+	<p>The new menu option in Wordpress 3 is very useful, but in order to use it you need to have a user role capable of accessing the Appearance menu. This is a problem for everyone who gives their clients Editor only access. So we give you the option to allow Editors to use the Menu page, but there are some importnant points you should be aware of. By doing this you will give Editor's the following capabilities: switch_themes, edit_theme_options. This means that a Editor has the ability to change themes and access the Widgets page. Even though we have removed these from the menu system, if a user knows the direct url path they will be able to access it themselves.</p>
+	<p>If you do give access to the Appearance menu, and the submenus of Background and Header are appearing, you need to modify your theme functions.php. If you are using a third party theme, there may be other submenus that appear that you will have to remove yourself.</p>
+
+	<h4>Muli User Sites</h4>
+	<p>You must install the plugin network wide in order for it to work on all sites.</p>
+	<p>You must save the options on each mini site, in order for the default options to appear.</p>
+	<p>You can have seperate login logos for each mini site. Simply change the filename, and upload it to the relevant theme.</p>
+
 	<h4>Troubleshooting</h4>
 	<p><strong>I installed the plugin and the logos disappear?:</strong> You need to upload your logos to you current themes images directory.</p>
 	<p><strong>The menus have not changes?:</strong> Make sure you are logged in as the editor</p>
+	<p><strong>Lost Password CSS not working?:</strong> Make sure you use the example format. The color must be the last css style and it must not have a closing ; as !important is appended to the end of the style to overwrite and existing style.</p>
 	
 	<p>This plugin is sponsored by: <a href=\"http://www.videousermanuals.com?ref=whitelabelcmsplugin\" target=\"_blank\">Video User Manuals</a></p>
 
@@ -99,7 +109,18 @@ function wlcms_custom_login_logo() {
 	echo '<style type="text/css">
 	h1 a { background-image:url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_login_custom_logo') . ') !important; margin-bottom: 10px; }
 	#login{ background: ' . get_option('wlcms_o_login_bg') . '; padding: 20px;-moz-border-radius:11px;-khtml-border-radius:11px;-webkit-border-radius:11px;border-radius:5px; }
-	</style>';
+	.login #login p#nav a {' . get_option('wlcms_o_login_lost') . '  !important }
+	</style>
+	<script type="text/javascript">
+		function loginalt() {
+			var changeLink = document.getElementById(\'login\').innerHTML;
+			changeLink = changeLink.replace("http://wordpress.org/", "' . site_url() . '");
+			changeLink = changeLink.replace("Powered by WordPress", "' . get_bloginfo('name') . '");			
+			document.getElementById(\'login\').innerHTML = changeLink;
+		}
+		window.onload=loginalt;
+	</script>
+	';
 }
 
 /* add dashboard help widget */
@@ -111,6 +132,17 @@ if (get_option('wlcms_o_show_welcome') == 1) {
 	function wlcms_add_dashboard_widget() {
 		wp_add_dashboard_widget('custom_help_widget', get_option('wlcms_o_welcome_title'), 'wlcms_custom_dashboard_help');
 	}
+}
+
+// hide switch theme from right now panel for editors
+function wlcms_hide_switch_theme() {
+	if(!current_user_can( 'manage_options' ) ) {
+	   echo '
+		  <style type="text/css">
+			#dashboard_right_now .versions p, #dashboard_right_now .versions #wp-version-message  { display: none; }
+		  </style>  
+	   ';
+   }
 }
 
 // actions
@@ -141,7 +173,6 @@ add_action('login_head', 'wlcms_custom_login_logo');
 // filter
 add_filter('admin_footer_text', 'wlcms_remove_footer_admin');
 
-
 // Contextual Help For Plugin
 function my_contextual_help($text) {
 	$screen = $_GET['page'];
@@ -154,10 +185,27 @@ function my_contextual_help($text) {
 }
 add_action('contextual_help', 'my_contextual_help');
 
+// remove switch theme from right now dashboard panel only for none admin
+add_action('admin_head', 'wlcms_hide_switch_theme');
 
 // remove unnecessary menus
 function remove_admin_menus () {
 	global $menu;
+	global $submenu;
+	
+	// $menu[60] = array( __('Appearance'), 'switch_themes', 'themes.php', '', 'menu-top menu-icon-appearance', 'menu-appearance', 'div' );	
+
+	// get the "author" role object
+	// $role = get_role( 'editor' );
+	
+	// add "switch_themes" to this role object
+	// $role->add_cap( 'switch_themes' );
+	
+	// add "edit_theme_options" to this role object to access menus
+	// $role->add_cap( 'edit_theme_options' );
+	
+	// remove "switch_themes" from this role object
+	// $role->remove_cap( 'switch_themes' );
 
 	$restrict_user[0] = '';
 	if (get_option('wlcms_o_hide_posts')) { array_push($restrict_user,'Posts'); }
@@ -165,10 +213,8 @@ function remove_admin_menus () {
 	if (get_option('wlcms_o_hide_links')) { array_push($restrict_user,'Links'); }
 	if (get_option('wlcms_o_hide_pages')) { array_push($restrict_user,'Pages'); }
 	if (get_option('wlcms_o_hide_comments')) { array_push($restrict_user,'Comments'); }
-	if (get_option('wlcms_o_hide_profile')) { array_push($restrict_user,'Profile'); }
 	if (get_option('wlcms_o_hide_tools')) { array_push($restrict_user,'Tools'); }
-	if (get_option('wlcms_o_hide_users')) { array_push($restrict_user,'Users'); }
-	
+	if (get_option('wlcms_o_hide_users')) { array_push($restrict_user,'Profile'); }
 	if (get_option('wlcms_o_hide_separator2')) {  $hideSeparator2 = true; } else { $hideSeparator2 = false; };
 
 	unset($restrict_user[0]);
@@ -197,16 +243,71 @@ function remove_admin_menus () {
 			}			
 		}
 	}
+	
+	if ((get_option('wlcms_o_show_appearance')) || ( get_option('wlcms_o_show_widgets'))) {
+	
+		// theme
+		unset($submenu['themes.php'][5]);
+		
+		if (! get_option('wlcms_o_show_appearance')) {
+			// menu
+			unset($submenu['themes.php'][10]);	
+		}
+		if (! get_option('wlcms_o_show_widgets')) {
+			// widgets
+			unset($submenu['themes.php'][7]);	
+		}
+
+	}
+	
 }
 add_action('admin_menu', 'remove_admin_menus');
 
+function plugin_deactivate() {
+    // Cleanup
+    plugin_cleanup();
+} // end :: function :: plugin_deactivate
 
+function plugin_cleanup() {
+    // Delete our options
+    delete_option(wlcms_o_dashboard_remove_right_now); 
+    delete_option(wlcms_o_dashboard_remove_widgets);
+    delete_option(wlcms_o_dashboard_remove_nag_update);
+    delete_option(wlcms_o_header_custom_logo);
+    delete_option(wlcms_o_header_custom_logo_width);
+    delete_option(wlcms_o_footer_custom_logo);
+    delete_option(wlcms_o_footer_custom_logo_width);
+    delete_option(wlcms_o_developer_url);
+    delete_option(wlcms_o_developer_name);
+    delete_option(wlcms_o_login_custom_logo);
+    delete_option(wlcms_o_login_bg);
+    delete_option(wlcms_o_login_lost);
+    delete_option(wlcms_o_show_welcome);
+    delete_option(wlcms_o_welcome_title);
+    delete_option(wlcms_o_welcome_text);
+    delete_option(wlcms_o_hide_profile);
+    delete_option(wlcms_o_hide_posts);
+    delete_option(wlcms_o_hide_media);
+    delete_option(wlcms_o_hide_links);
+    delete_option(wlcms_o_hide_pages);
+    delete_option(wlcms_o_hide_comments);
+    delete_option(wlcms_o_hide_users);
+    delete_option(wlcms_o_hide_tools);
+    delete_option(wlcms_o_hide_separator2);
+    delete_option(wlcms_o_show_widgets);
+    delete_option(wlcms_o_show_appearance);
+    
+    // remove editor changes
+	$role = get_role( 'editor' );
+	$role->remove_cap( 'switch_themes' );
+	$role->remove_cap( 'edit_theme_options' );    
+    
+} // end :: function :: plugin_cleanup
 
 
 /**********************************/
 /*  Admin Page */
 /**********************************/
-
 $wlcmsThemeName = "White Label CMS";
 $wlcmsShortName = "wlcms_o";
 
@@ -287,7 +388,13 @@ array( "name" => "Login Background Color",
 	"desc" => "This is the color of the background which will contain your logo.",
 	"id" => $wlcmsShortName."_login_bg",
 	"type" => "text",
-	"std" => '#FFFFFF'),			
+	"std" => '#FFFFFF'),		
+
+array( "name" => "Lost Your Password CSS",
+	"desc" => "Must follow this format: text-shadow:none; color: #333",
+	"id" => $wlcmsShortName."_login_lost",
+	"type" => "text",
+	"std" => ''),			
 	
 array( "type" => "close"),
 array( "name" => "Add Your Own Dashboard Panel",
@@ -318,7 +425,7 @@ array( "name" => "Description",
 
 array( "type" => "close"),
 
-array( "name" => "Remove Menus",
+array( "name" => "Modify Menus",
 	"type" => "section"),
 array( "type" => "open"),
 
@@ -362,8 +469,8 @@ array( "name" => "Hide Comments Menu",
 	"type" => "checkbox",
 	"std" => 0),
 	
-array( "name" => "Hide Users Menu",
-	"desc" => "Hides Users from left menu",
+array( "name" => "Hide Users / Profile Menu",
+	"desc" => "Hides Users / Profile from left menu",
 	"id" => $wlcmsShortName."_hide_users",
 	"type" => "checkbox",
 	"std" => 0),	
@@ -372,13 +479,28 @@ array( "name" => "Hide Tools Menu",
 	"desc" => "Hides Tools from left menu",
 	"id" => $wlcmsShortName."_hide_tools",
 	"type" => "checkbox",
-	"std" => 0),
+	"std" => 0),	
 
 array( "name" => "Hide 2nd Separator",
 	"desc" => "Hides 2nd separator",
 	"id" => $wlcmsShortName."_hide_separator2",
 	"type" => "checkboxlast",
 	"std" => 0),
+	
+array( "name" => "The following change will display the Widgets or Menus option in Appearance to users with the role of <strong>Editor</strong>. Please refer to the help tab to understand the consequences of enabling this option.",
+	"type" => "message2"),	
+	
+array( "name" => "Show Appearance > Widgets",
+	"desc" => "Shows the submenu 'Widgets' under the Appearance tab.",
+	"id" => $wlcmsShortName."_show_widgets",
+	"type" => "checkbox",
+	"std" => 0),	
+
+array( "name" => "Show Appearance > Menus",
+	"desc" => "Shows the submenu 'Menus' under the Appearance tab.",
+	"id" => $wlcmsShortName."_show_appearance",
+	"type" => "checkboxlastv3",
+	"std" => 0),	
 
 array( "type" => "close")
 
@@ -408,6 +530,17 @@ if ( $_GET['page'] == 'wlcms-plugin.php') {
 		foreach ($wlcmsOptions as $value) {
 			if( isset( $_REQUEST[ $value['id'] ] ) ) { update_option( $value['id'], $_REQUEST[ $value['id'] ]  ); } else { delete_option( $value['id'] ); } 
 		}
+		
+		// update editor capabilities
+		if (($_REQUEST['wlcms_o_show_appearance']) || ($_REQUEST['wlcms_o_show_widgets'])) {
+			$role = get_role( 'editor' );
+			$role->add_cap( 'switch_themes' );
+			$role->add_cap( 'edit_theme_options' );
+		} else {
+			$role = get_role( 'editor' );
+			$role->remove_cap( 'switch_themes' );
+			$role->remove_cap( 'edit_theme_options' );
+		}
  
 	header("Location: admin.php?page=wlcms-plugin.php&saved=true");
 die;
@@ -417,7 +550,12 @@ else if( 'reset' == $_REQUEST['action'] ) {
  
 	foreach ($wlcmsOptions as $value) {
 		delete_option( $value['id'] ); }
- 
+		
+	// remove editor capabilities
+	$role = get_role( 'editor' );
+	$role->remove_cap( 'switch_themes' );
+	$role->remove_cap( 'edit_theme_options' );
+
 	header("Location: admin.php?page=wlcms-plugin.php&reset=true");
 die;
  
@@ -511,6 +649,14 @@ case 'text':
  </div>
 <?php
 break;
+
+case 'message2':
+?>
+<div class="wlcms_input_message wlcms_text">
+	<div id="icon-themes" class="wlcms-icon32"><br></div><?php echo $value['name']; ?>
+ </div>
+<?php
+break;
  
 case 'textarea':
 ?>
@@ -553,7 +699,30 @@ break;
 
 	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
  </div>
-<?php break; 
+ <?php
+break;
+case "checkboxlastv3":
+	// only show if version 3 of WordPress or above
+	global $wp_version;
+	if (substr($wp_version,0,3) < 3) {
+		echo '<div class="wlcms_checkbox_last wlcms_checkbox">';
+		echo '<input type="hidden" name="' . $value['id'] . '" id="' . $value['id'] . '" value="" />';
+		echo '<div class="clearfix"></div>';
+		echo '</div>';
+	} else {
+?>
+<div class="<?php if($value['type']  == 'checkbox') { echo 'wlcms_input_local_video'; } else { echo 'wlcms_checkbox_last'; }?> wlcms_checkbox">
+	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
+	
+<?php if(get_option($value['id'])){ $checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked'; }else{ $checked = ""; $remChecked = '';} ?>
+<input type="checkbox" name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" value="true" <?php echo $checked; ?> class="<?php echo $remChecked; ?>" />
+
+
+	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
+ </div>
+<?php 
+	}
+break; 
 case "radio":
 ?>
 
@@ -668,4 +837,5 @@ Click here to reset the plugin:
 <?php
 add_action('admin_init', 'wlcms_add_init');
 add_action('admin_menu', 'wlcms_add_admin');
+register_deactivation_hook( __FILE__, 'plugin_deactivate' );
 ?>
