@@ -3,7 +3,7 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.2
+Version: 1.3
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
@@ -68,28 +68,70 @@ function wlcms_add_menu() {
 add_action('admin_menu', 'wlcms_add_menu');
 
 function wlcms_remove_dashboard_widgets() {
-   global $wp_meta_boxes;
-   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
-   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
-   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
-   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
-   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
-   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
+
+	if ((!current_user_can('activate_plugins')) || (get_option('wlcms_o_dashboard_admin_only') == 0)) {
+	   global $wp_meta_boxes;
+	   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
+	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
+	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
+	   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
+	   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
+	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
+	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
+	  }
+}
+
+function wlcms_remove_dashboard_browser() {
+	if ((!current_user_can('activate_plugins')) || (get_option('wlcms_o_dashboard_admin_only') == 0)) {
+		global $wp_meta_boxes;
+		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_browser_nag']);
+	}
 }
 
 function wlcms_remove_right_now() {
-   global $wp_meta_boxes;
-	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
+	if ((!current_user_can('activate_plugins')) || (get_option('wlcms_o_dashboard_admin_only') == 0)) {
+		global $wp_meta_boxes;
+		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
+	}
 }
 
 // custom logo in header
 function wlcms_custom_logo() {
-   echo '
-	  <style type="text/css">
-		 #header-logo { background-image: url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_header_custom_logo') . ') !important; width: ' . get_option('wlcms_o_header_custom_logo_width') . '; }
-	  </style>  
-   ';
+	global $wp_version;
+   echo '<style type="text/css">';
+   echo '#header-logo { background-image: url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_header_custom_logo') . ') !important; ';
+   $css_width = get_option('wlcms_o_header_custom_logo_width');
+   if ($css_width != '') {
+	   	echo 'width: ' . get_option('wlcms_o_header_custom_logo_width') . '; ';
+	} else {
+		if (( version_compare( $wp_version, '3.2', '>=' ) ) && (get_option('wlcms_o_header_height') == 1)) {
+			echo 'width: 32px; ';
+		}	
+	}
+   	echo '} ';
+	if (( version_compare( $wp_version, '3.2', '>=' ) ) && (get_option('wlcms_o_header_height') == 1)) {
+		echo ' #wphead { height: 48px; }
+				   #wphead h1 { font-size: 22px; padding: 10px 8px 5px; }
+				   #header-logo { height: 32px; }
+				   #user_info { padding-top: 8px }
+				   #user_info_arrow { margin-top: 8px; }
+				   #user_info_links { top: 8px; }
+				   #footer p { padding-top: 15px; }
+				   #wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px;}
+				 ';
+	}	 
+	if (( version_compare( $wp_version, '3.2', '<' ) ) && (get_option('wlcms_o_header_height') == 0)) {
+		echo '#wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px; }';
+	}
+	if (get_option('wlcms_o_header_logo_link') == 1) {
+		echo '#site-heading { display: none; } ';
+	}
+	echo '</style>';
+	if (get_option('wlcms_o_header_logo_link') == 1) {
+		echo '<script type="text/javascript">';
+		echo "jQuery(function($){ $('#header-logo').wrap('<a href=\"" . site_url() . "\" alt=\"" . get_bloginfo('name') . "\" title=\"" . get_bloginfo('name') . "\">'); });";
+		echo '</script>';
+	}	
 }
 
 // add footer logo
@@ -106,6 +148,7 @@ function wlcms_remove_footer_admin() {
 
 // custom logo login
 function wlcms_custom_login_logo() {
+
 	echo '<style type="text/css">
 	h1 a { background-image:url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_login_custom_logo') . ') !important; margin-bottom: 10px; }
 	#login{ background: ' . get_option('wlcms_o_login_bg') . '; padding: 20px;-moz-border-radius:11px;-khtml-border-radius:11px;-webkit-border-radius:11px;border-radius:5px; }
@@ -148,7 +191,12 @@ function wlcms_hide_switch_theme() {
 // actions
 // remove dashboard widgets
 if (get_option('wlcms_o_dashboard_remove_widgets') == 1) {
-	add_action('wp_dashboard_setup', 'wlcms_remove_dashboard_widgets');
+		add_action('wp_dashboard_setup', 'wlcms_remove_dashboard_widgets');
+}
+
+// remove browser panel
+if (get_option('wlcms_o_dashboard_browser') == 1) {
+	add_action('wp_dashboard_setup', 'wlcms_remove_dashboard_browser');
 }
 
 // remove nag update
@@ -174,7 +222,7 @@ add_action('login_head', 'wlcms_custom_login_logo');
 add_filter('admin_footer_text', 'wlcms_remove_footer_admin');
 
 // Contextual Help For Plugin
-function my_contextual_help($text) {
+function wlcms_my_contextual_help($text) {
 	$screen = $_GET['page'];
 	if ($screen == 'White Label CMS') {
 		$text = "<h5>Need help with this plugin?</h5>";
@@ -183,7 +231,7 @@ function my_contextual_help($text) {
 	}
 	return $text;
 }
-add_action('contextual_help', 'my_contextual_help');
+add_action('contextual_help', 'wlcms_my_contextual_help');
 
 // remove switch theme from right now dashboard panel only for none admin
 add_action('admin_head', 'wlcms_hide_switch_theme');
@@ -208,21 +256,21 @@ function remove_admin_menus () {
 	// $role->remove_cap( 'switch_themes' );
 
 	$restrict_user[0] = '';
-	if (get_option('wlcms_o_hide_posts')) { array_push($restrict_user,'Posts'); }
-	if (get_option('wlcms_o_hide_media')) { array_push($restrict_user,'Media'); }
-	if (get_option('wlcms_o_hide_links')) { array_push($restrict_user,'Links'); }
-	if (get_option('wlcms_o_hide_pages')) { array_push($restrict_user,'Pages'); }
-	if (get_option('wlcms_o_hide_comments')) { array_push($restrict_user,'Comments'); }
-	if (get_option('wlcms_o_hide_tools')) { array_push($restrict_user,'Tools'); }
-	if (get_option('wlcms_o_hide_users')) { array_push($restrict_user,'Profile'); }
-	if (get_option('wlcms_o_hide_separator2')) {  $hideSeparator2 = true; } else { $hideSeparator2 = false; };
+	if (get_option('wlcms_o_hide_posts')) { array_push($restrict_user,__('Posts','default')); }
+	if (get_option('wlcms_o_hide_media')) { array_push($restrict_user,__('Media','default')); }
+	if (get_option('wlcms_o_hide_links')) { array_push($restrict_user,__('Links','default')); }
+	if (get_option('wlcms_o_hide_pages')) { array_push($restrict_user,__('Pages','default')); }
+	if (get_option('wlcms_o_hide_comments')) { array_push($restrict_user,__('Comments','default')); }
+	if (get_option('wlcms_o_hide_tools')) { array_push($restrict_user,__('Tools','default')); }
+	if (get_option('wlcms_o_hide_users')) { array_push($restrict_user,__('Profile','default')); }
+	if (get_option('wlcms_o_hide_separator2')) { $hideSeparator2 = true; } else { $hideSeparator2 = false; };
 
 	unset($restrict_user[0]);
 	
 	if (sizeof($restrict_user) > 0) {
 	
 		// WP localization
-		$f = create_function('$v,$i', 'return __($v);');
+		$f = create_function('$v,$i', '$v = __($v);');
 		
 		if (!current_user_can('activate_plugins')) {
 			array_walk($restrict_user, $f);
@@ -245,21 +293,22 @@ function remove_admin_menus () {
 	}
 	
 	if ((get_option('wlcms_o_show_appearance')) || ( get_option('wlcms_o_show_widgets'))) {
-	
-		// theme
-		unset($submenu['themes.php'][5]);
-		
-		if (! get_option('wlcms_o_show_appearance')) {
-			// menu
-			unset($submenu['themes.php'][10]);	
-		}
-		if (! get_option('wlcms_o_show_widgets')) {
-			// widgets
-			unset($submenu['themes.php'][7]);	
-		}
 
-	}
+		if (!current_user_can('activate_plugins')) {
 	
+			// theme
+			unset($submenu['themes.php'][5]);
+			
+			if (! get_option('wlcms_o_show_appearance')) {
+				// menu
+				unset($submenu['themes.php'][10]);	
+			}
+			if (! get_option('wlcms_o_show_widgets')) {
+				// widgets
+				unset($submenu['themes.php'][7]);	
+			}
+		}
+	}
 }
 add_action('admin_menu', 'remove_admin_menus');
 
@@ -271,8 +320,12 @@ function plugin_deactivate() {
 function plugin_cleanup() {
     // Delete our options
     delete_option(wlcms_o_dashboard_remove_right_now); 
+    delete_option(wlcms_o_dashboard_browser);
     delete_option(wlcms_o_dashboard_remove_widgets);
+    delete_option(wlcms_o_dashboard_admin_only);   
     delete_option(wlcms_o_dashboard_remove_nag_update);
+    delete_option(wlcms_o_header_logo_link);    
+    delete_option(wlcms_o_header_height);    
     delete_option(wlcms_o_header_custom_logo);
     delete_option(wlcms_o_header_custom_logo_width);
     delete_option(wlcms_o_footer_custom_logo);
@@ -317,30 +370,18 @@ array( "name" => $wlcmsThemeName." Options",
 	"type" => "title"),
  
 
-array( "name" => "Customization",
+array( "name" => "Branding",
 	"type" => "section"),
 array( "type" => "open"),
 
-array( "name" => "Hide 'Right Now'",
-	"desc" => "This will hide the Right Now panel from the dashboard",
-	"id" => $wlcmsShortName."_dashboard_remove_right_now",
+
+
+array( "name" => "Classic Header/Footer Height",
+	"desc" => "<b>3.2 Only</b> - This will change the Header height to 46px, pre WordPress 3.2 size (better for branding)",
+	"id" => $wlcmsShortName."_header_height",
 	"type" => "radio",
 	"options" => array("1", "0"),
 	"std" => 0),
-	
-array( "name" => "Hide Other Dashboard Panels",
-	"desc" => "This will hide all standard dashboard panels except the Right Now panel",
-	"id" => $wlcmsShortName."_dashboard_remove_widgets",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 1),
-	
-array( "name" => "Hide Nag Update",
-	"desc" => "This will hide the Nag Update for out of date versions of wordpress",
-	"id" => $wlcmsShortName."_dashboard_remove_nag_update",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 1),
 
 array( "name" => "Custom Header Logo",
 	"desc" => "This is the logo that will appear in the header.  It should be a transparent .gif or.png and about 32px by 32px. You should upload the logo to the current theme /images/ directory",
@@ -353,6 +394,13 @@ array( "name" => "Custom Header Logo Width",
 	"id" => $wlcmsShortName."_header_custom_logo_width",
 	"type" => "text",
 	"std" => ''),
+	
+array( "name" => "Header Logo As Site Link",
+	"desc" => "The logo that appears in the header with be the link to the site. It will remove the text link",
+	"id" => $wlcmsShortName."_header_logo_link",
+	"type" => "radio",
+	"options" => array("1", "0"),
+	"std" => 0),	
 
 array( "name" => "Custom Footer Logo",
 	"desc" => "This is the logo that will appear in the footer.  It should be a transparent .gif or.png and about 32px by 32px. You should upload the logo to the current theme /images/ directory",
@@ -397,9 +445,44 @@ array( "name" => "Lost Your Password CSS",
 	"std" => ''),			
 	
 array( "type" => "close"),
-array( "name" => "Add Your Own Dashboard Panel",
+array( "name" => "Dashboard Panels",
 	"type" => "section"),
 array( "type" => "open"),
+
+array( "name" => "Hide 'Right Now'",
+	"desc" => "This will hide the Right Now panel from the dashboard",
+	"id" => $wlcmsShortName."_dashboard_remove_right_now",
+	"type" => "radio",
+	"options" => array("1", "0"),
+	"std" => 0),
+
+array( "name" => "Hide Browser Update Panel",
+	"desc" => "Hides the browser update panel",
+	"id" => $wlcmsShortName."_dashboard_browser",
+	"type" => "radio",
+	"options" => array("1", "0"),
+	"std" => 1),	
+	
+array( "name" => "Hide Other Dashboard Panels",
+	"desc" => "This will hide all standard dashboard panels except the Right Now panel",
+	"id" => $wlcmsShortName."_dashboard_remove_widgets",
+	"type" => "radio",
+	"options" => array("1", "0"),
+	"std" => 1),
+
+array( "name" => "Show Dashboard To Admin",
+	"desc" => "This will show the dashboard panels to the admin, but editors will not see them.",
+	"id" => $wlcmsShortName."_dashboard_admin_only",
+	"type" => "radio",
+	"options" => array("1", "0"),
+	"std" => 0),
+	
+array( "name" => "Hide Nag Update",
+	"desc" => "This will hide the Nag Update for out of date versions of wordpress",
+	"id" => $wlcmsShortName."_dashboard_remove_nag_update",
+	"type" => "radio",
+	"options" => array("1", "0"),
+	"std" => 1),	
 
 array( "name" => "Add You Own Welcome Panel?",
 	"desc" => "This will appear on the dashboard.  We recommend providing your contact details and links to the help files you have made for your client.",

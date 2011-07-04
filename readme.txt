@@ -8,14 +8,16 @@ Author URI: http://www.videousermanuals.com
 Author:  Video User Manuals
 Donate link: 
 Requires at least: 2.8 
-Tested up to: 3.0
-Stable tag: 1.2
-Version: 1.2
+Tested up to: 3.2
+Stable tag: 1.3
+Version: 1.3
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
 == Description ==
 The White Label CMS plugin is for developers who want to give their clients a more personalised and less confusing CMS.
+
+For a video overview of the changes in 1.3 and how this affects WordPress 3.2 please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/ "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
 
 You have the ability to choose which menus appear.  We have 3 CMS profiles of Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to user role of Editor and below.
 
@@ -28,8 +30,6 @@ It also allows you to add custom logos to the header and footer as well as the a
 There is also the option to hide the nag updates as well.
 
 No longer will you have to tell your clients to ignore the dashboard!
-
-For a video overview of this plugin please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/ "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
 
 == Installation ==
 1. Download the White Label CMS plugin
@@ -47,7 +47,9 @@ Custom Login Logo: custom-login-logo.gif
 In order to specify a with for the Header Logo or Footer Logo, please ensure you append px to the number.
 
 == Upgrade Notice ==
-Allow editors access to widgets and menus in appearance.
+Updates for WordPress 3.2 . We provide a option to use your existing 32 pixel logo instead of a 16px pixel logo.
+New features
+Bug Fixes
 
 == Screenshots ==
 1. An example of a custom login
@@ -57,6 +59,16 @@ Allow editors access to widgets and menus in appearance.
 5. New feature - Show Widgets and Menus for editors
 
 == Changelog ==
+= 1.3 =
+Changes for WordPress 3.2
+Restructure of menus
+Added classic header and footer for 3.2 to improve branding
+Header logo as site link
+Admin can view dashboards but hide them from editors
+Hide browser nag
+
+Bug fixes
+
 = 1.2 =
 Ability to show Menu & Widgets menu for Editors
 Removed WordPress link and ALT text from login page.
