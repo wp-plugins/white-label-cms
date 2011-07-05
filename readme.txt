@@ -17,6 +17,8 @@ Allows customization of dashboard and logos, removal of menus, giving editors ac
 == Description ==
 The White Label CMS plugin is for developers who want to give their clients a more personalised and less confusing CMS.
 
+Important - For user wanting to use their existing logos, please select the Classic Header/Footer Height in the Branding section.
+
 For a video overview of the changes in 1.3 and how this affects WordPress 3.2 please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/ "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
 
 You have the ability to choose which menus appear.  We have 3 CMS profiles of Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to user role of Editor and below.
