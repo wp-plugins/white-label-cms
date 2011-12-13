@@ -1,6 +1,72 @@
-    jQuery(document).ready(function(){
+function wlcms_menus() {
+	// Set initial open/close
+	jQuery('#menus > li').each(function() {
+  		var submenu = jQuery('ul',this);
+  		
+  		if(jQuery(submenu).length>0) {
+			jQuery(submenu).slideDown(500);
+			jQuery("em",this).text("↓");
+		}
+  			
+  		if(jQuery('input:eq(0)',this).is(':checked')) {
+  			if(jQuery(submenu).length>0) {
+  				jQuery(submenu).slideDown(500);
+  				jQuery("em",this).text("↑");
+  			}
+  		} else {
+  			if(jQuery(submenu).length>0) {
+  				jQuery(submenu).hide();
+  				jQuery("em",this).text("↓");
+  			}
+  		}
+  	});
+  	
+  	// On click
+	jQuery('#menus span').click(function() {
+  		var parent = jQuery(this).parent().parent();
+  		var submenu = jQuery('ul',parent);
+  		jQuery(submenu).slideToggle(500,function() {
+  			var parent = jQuery(this).parent();
+			jQuery("em",parent).text(jQuery(submenu).is(':visible') ? "↑" : "↓");
+  		});
+  	});
+  	
+	// On click
+	jQuery('#menus input').click(function() {
+  		var parent = jQuery(this).parent().parent();
+  		var submenu = jQuery('ul',parent);
+  		if(jQuery(this).is(':checked')) {
+  			if(jQuery(submenu).length>0) {
+  				jQuery(submenu).slideDown(500);
+  				jQuery('li',submenu).each(function() {
+  					jQuery('input',this).attr('checked','checked');
+  				});
+  			}
+  		} else {
+  			if(jQuery(submenu).length>0) {
+  				jQuery(submenu).slideUp(500);
+  				jQuery('li',submenu).each(function() {
+  					jQuery('input',this).removeAttr('checked');
+  				});
+  			}
+  		}
+  	});
+}
+
+jQuery(document).ready(function($){
+    wlcms_menus();
+  	
+    	
+    $('#wlcms_o_edit_role').parent().css('borderTop','0');
+    $('#roles_capabilities').parent().css('paddingLeft','30px').css('paddingRight','30px').css('paddingBottom','10px');
     
-    	jQuery('#footer-left').remove();
+    jQuery('.edit_role_name').hide();
+	jQuery('#wlcms_o_head_cap').hide();
+	/**/
+	jQuery('.wlcms_o_modify_sub_menu').hide();
+
+/**/
+    	/*jQuery('#footer-left').remove();*/
     
 		jQuery('.wlcms_options').slideUp();
 		
@@ -11,6 +77,9 @@
 		});
 
 		var showHideWelcome;
+		var formField;
+		var showHideTemplate;
+		
 		showHideWelcome = jQuery('.wlcms_opts form #form-show-welcome input:radio:checked').val();
 		if(showHideWelcome == 0) {
 			jQuery('.video-h').hide();
@@ -22,6 +91,22 @@
 				jQuery('.video-h').hide();
 			} else {
 				jQuery('.video-h').show();
+			}
+		 });
+		 
+		 showHideTemplate = jQuery('.wlcms_opts form #form-show-template input:radio:checked').val();
+		if(showHideTemplate == 0) {
+			jQuery('#vAppearanceMenu').hide();
+		} else {
+			jQuery('#vAppearanceMenu').show();
+		}
+		
+		 jQuery('.wlcms_opts form #form-show-template input:radio').click(function() {
+		 	showHideTemplate = jQuery('.wlcms_opts form #form-show-template input:radio:checked').val();
+			if(showHideTemplate == 0) {
+				jQuery('#vAppearanceMenu').hide();
+			} else {
+				jQuery('#vAppearanceMenu').show();
 			}
 		 });
 		
@@ -70,6 +155,16 @@
 			jQuery('input[name=wlcms_o_show_widgets]').attr('checked', false);					
 		});
 
+		jQuery('.wlcms_input_local_video').click(function() {
+			if(jQuery('label',this).hasClass('wlcms_o_parent_label_active')) {
+				jQuery('.wlcms_o_parent_label_active',this).removeClass('wlcms_o_parent_label_active');
+			} else {
+				jQuery('.wlcms_o_parent_label',this).addClass('wlcms_o_parent_label_active');
+			}
+			
+			jQuery(this).next('.wlcms_o_modify_sub_menu').slideToggle('slow');	
+		});
+
 		jQuery('#radioCustom').click(function() {
 			if (jQuery('#wlcms_o_hide_posts').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_posts]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_posts]').attr('checked', false); }
 			if (jQuery('#wlcms_o_hide_media').is('.wlcms_remChecked')) { jQuery('input[name=wlcms_o_hide_media]').attr('checked', true); } else { jQuery('input[name=wlcms_o_hide_media]').attr('checked', false); }
@@ -85,5 +180,114 @@
 		});
 		
 		
+		// Set default value
 		
+		jQuery(".default-text").focus(function(srcc){
+		    if (jQuery(this).val() == jQuery(this)[0].title){
+		    	jQuery(this).val("");
+		    }
+		});
+
+		jQuery(".default-text").blur(function(){
+		    if (jQuery(this).val() == "" || isNaN(jQuery(this).val())){
+		    	jQuery(this).val(jQuery(this)[0].title);
+		    }
+		});
+/***********************************************************************************/
+		jQuery(".add").click(function(){
+		    if (jQuery("#wlcms_o_role_name").val() == ""){
+		    	alert("must fill role name");
+		    	return false;
+
+		    }
+
+		});
+
+/*hide roles_capabilities*/
+var roleName;
+
+
+jQuery('#wlcms_o_edit_role').change(function() {
+		jQuery('.edit_role_name').hide();
+		jQuery('#wlcms_o_head_cap').show();
+		roleName=jQuery("#wlcms_o_edit_role").val();
+		if(roleName==0)
+			jQuery('#wlcms_o_head_cap').hide();
+		 	
+		jQuery('#roles_'+roleName).show();
+			
+		 });
+
+/**/
+
+/***********************************************************************************/
+
+		jQuery(".default-text").blur();
+		
+		
+		// Add http with devoloper url if not exist
+		
+		jQuery("#wlcms_o_developer_url").blur(function() {
+			  var input = jQuery(this);
+			  var val = input.val();
+			  if (val && !val.match(/^http([s]?):\/\/.*/)) {
+			    input.val('http://' + val);
+			  }
+		});
+
+		
+		// Upload function goes here
+
+		jQuery('.upload_image_button').click(function() {
+		 formField = jQuery(this).attr('rel');
+		 tb_show('', 'media-upload.php?type=image&wlcms=true&TB_iframe=true');
+		 return false;
+		});
+
+		window.send_to_editor = function(html) {
+		 imgurl = jQuery('img',html).attr('src');
+		 jQuery('#'+formField).val(imgurl);
+		 tb_remove();
+		}
+		
+		
+		  	
+	var formfield=null;
+	window.original_send_to_editor = window.send_to_editor;
+	window.send_to_editor = function(html){
+		if (formfield) {
+			var fileurl = jQuery('img',html).attr('src');
+			formfield.val(fileurl);
+			tb_remove();
+		} else {
+			window.original_send_to_editor(html);
+		}
+		formfield=null;
+	};
+ 
+	jQuery('.lu_upload_button').click(function() {
+ 		formfield = jQuery(this).parent().parent().find(".text_input");
+ 		tb_show('', 'media-upload.php?type=image&wlcms=true&TB_iframe=true');
+		jQuery('#TB_overlay,#TB_closeWindowButton').bind("click",function(){formfield=null;});
+		return false;
+	});
+	jQuery(document).keyup(function(e) {
+  		if (e.keyCode == 27) formfield=null;
+	});
+
+    	
+
+// Ajax function goes here
+
+
+/*$.ajax({
+  url: "wlcms-plugin.php",
+  context: document.body,
+  success: function update_function(){
+alert("hai";
+    $(this).addClass("done");
+  }
+});*/
+////////////////////////////////////////////////
 });
+    

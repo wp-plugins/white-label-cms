@@ -3,922 +3,725 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.3
+Version: 1.4
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
+define('WLCMS','1.4');
+
+if ( ! defined('ABSPATH') ) {
+        die('Please do not load this file directly.');
+}
+
+
+global $wpdbb_content_dir;
+
+$wpdbb_content_dir = ( defined('WP_CONTENT_DIR') ) ? WP_CONTENT_DIR : ABSPATH . 'wp-content';
+
+if ( ! defined('WP_BACKUP_DIR') ) {
+        define('WP_BACKUP_DIR', $wpdbb_content_dir . '/');
+}
+
+if(!function_exists('wp_get_current_user')) {
+    include(ABSPATH . "wp-includes/pluggable.php"); 
+}
+ 
+
+include('includes/conditionals.php');
+include('includes/plugin_deactivate.php');
+
+add_action('init', 'wlcms_check_for_login');
+add_action('admin_notices','wlcms_nag');
+add_action('admin_menu', 'wlcms_add_menu');
+add_action('admin_init', 'wlcms_add_init');
+add_action('admin_menu', 'wlcms_add_admin'); 
+add_action('admin_head', 'wlcms_custom_css');
+add_action('login_head', 'wlcms_custom_login_logo');
+add_action('admin_head', 'wlcms_hide_switch_theme');
+add_action('admin_menu','wlcms_remove_default_post_metaboxes');
+add_action('admin_init', 'wlcms_remove_admin_menus');
+add_action('admin_menu','wlcms_remove_default_page_metaboxes');
+add_action('admin_head','wlcms_dashboard_mod');
+add_action('admin_head-media-upload-popup', 'wlcms_iframe_mod');
+add_action('wp_before_admin_bar_render', 'wlcms_adminbar', 0);
+add_action('wp_dashboard_setup', 'wlcms_add_dashboard_widget_custom' );
+
+add_filter( 'admin_title', 'wlcms_admin_title', 10, 2);
+add_filter( 'mce_css', 'wlcms_custom_editor_stylesheet' );
+
+register_deactivation_hook( __FILE__, 'wlcms_plugin_deactivate' );
+
+function wlcms_check_for_login()
+{
+	if( get_option('wlcms_o_enable_login_redirect') ):
+		$segments = explode('/' ,  $_SERVER['REQUEST_URI'] );
+		if ( $segments[ (count($segments) - 1) ] == 'login' ):
+			wp_redirect( get_bloginfo('url') . '/wp-login.php' );
+			exit;
+		endif;
+	endif;
+}
+
+
+function wlcms_dashboard_mod()
+{
+    global $current_screen;
+
+    if( ($current_screen->id == 'dashboard' ) ):
+
+        if( get_option('wlcms_o_dashboard_override') || get_option('wlcms_o_dashboard_override') == '' ) :
+
+			if ( get_option('wlcms_o_dashboard_override') != __('Dashboard') ) :
+
+				$val = (get_option('wlcms_o_dashboard_override') == '' ? '&nbsp;' : get_option('wlcms_o_dashboard_override') );
+				echo '<style type="text/css">#wpbody-content .wrap h2 { visibility: hidden; }</style>
+						<script type="text/javascript">
+								jQuery(document).ready(function($) {
+										$("#wpbody-content .wrap h2:eq(0)").html("'.$val.'");
+										$("#wpbody-content .wrap h2").css("visibility","visible");
+								});
+						</script>';
+						
+				endif;
+						
+        endif;
+
+    	if( get_option('wlcms_o_header_custom_logo') ):
+
+            $background =  get_option('wlcms_o_header_custom_logo');
+
+            if(!preg_match("@^https?://@", $background)){
+		$background = get_bloginfo('stylesheet_directory').'/images/'.$background;
+            }
+		
+            echo '<style type="text/css">
+                            #icon-index {background:transparent;height:auto;width:auto;visibility: hidden;}
+                            #dashboard-widgets-wrap {clear:both}
+                    </style>';
+            echo '<script type="text/javascript">
+                            jQuery(document).ready(function($) {
+                                    $("#icon-index").html("<img src=\"'.$background.'\" alt=\"\" />");
+                                    $("#icon-index").css("visibility","visible");                                    
+                            });
+                    </script>';
+    	endif;
+    
+    endif;
+	
+}
 
 // set admin screen
-function wlcms_add_menu() {
-
-	$wlcms_admin = add_options_page('White Label CMS','White Label CMS','manage_options','wlcms-plugin.php','wlcms_admin');
-
-	$wlcms_help = "
-	<style>
-	ul.help_list {
-		margin-top:10px;}
-		
-	ul.help_list li {
-		list-style-type:disc;
-		margin-left:20px;}
-	</style>
-
-		
-	<p>The purpose of this plugin is to help developers hand over a white label version of Wordpress to their clients, which looks more professional, and removes some of the unnecessary and confusing clutter from the dashboard and the menu system.</p>
-	
-	<p>We tried to make this as simple as possible so the options should be self explanatory.  There are really only 3 things that need explanation.</p>
-
-	<p style=\"font-size:9px; margin-bottom:10px;\">Icons: <a href=\"http://www.woothemes.com/2009/09/woofunction/\">WooFunction</a></p>
-	
-	<h4>Where To Upload The Images</h4>
-	<p>We made the decision that the custom logo images. The header logo, footer logo and login logo should all go into the images directory of your current theme.   We did this because we realised that web developers usually customise the theme themselves for their clients, so for each project adding in a couple of logo's to the theme is a very simple thing to do.</p>
-	
-	<h4>The Custom Dashboard Panel</h4>
-	<p>We usually add a personalised introduction for each client, and add out contact details, and a link to our help desk. We feel that this gives a more professional handover to our clients. You can use it any way you want, but please remember to use HTML code.</p>
-
-	<h4>Modify Menus</h4>
-	<p>Who uses the links and tools menu? No one! To give your client a better experience of WordPress we have made it possible to remove the menu items.  You can set it to custom, and choose yourself which menus to remove. Website or Blog, will show only menus related to running that type of CMS.</p>
-	<p>The important thing to note that the menus will only change for users with the role of Editor or below. You will need to log and log in as the editor in order to see how it looks.</p>
-	<h5>Why The Editor Role?</h5>
-	<p>The vast majority of developers give their clients only Editor access, for obvious reasons.  This plugin is designed for the majority of WordPress developers to quickly be able to give their clients the best experience of WordPress. If you want to modify what menus appear for the Administrator then we recommend this <a href='http://wordpress.org/extend/plugins/adminimize/'>great plugin</a>.</p> 
-
-	<h4>The Appearance Menu</h4>
-	<p>The new menu option in Wordpress 3 is very useful, but in order to use it you need to have a user role capable of accessing the Appearance menu. This is a problem for everyone who gives their clients Editor only access. So we give you the option to allow Editors to use the Menu page, but there are some importnant points you should be aware of. By doing this you will give Editor's the following capabilities: switch_themes, edit_theme_options. This means that a Editor has the ability to change themes and access the Widgets page. Even though we have removed these from the menu system, if a user knows the direct url path they will be able to access it themselves.</p>
-	<p>If you do give access to the Appearance menu, and the submenus of Background and Header are appearing, you need to modify your theme functions.php. If you are using a third party theme, there may be other submenus that appear that you will have to remove yourself.</p>
-
-	<h4>Muli User Sites</h4>
-	<p>You must install the plugin network wide in order for it to work on all sites.</p>
-	<p>You must save the options on each mini site, in order for the default options to appear.</p>
-	<p>You can have seperate login logos for each mini site. Simply change the filename, and upload it to the relevant theme.</p>
-
-	<h4>Troubleshooting</h4>
-	<p><strong>I installed the plugin and the logos disappear?:</strong> You need to upload your logos to you current themes images directory.</p>
-	<p><strong>The menus have not changes?:</strong> Make sure you are logged in as the editor</p>
-	<p><strong>Lost Password CSS not working?:</strong> Make sure you use the example format. The color must be the last css style and it must not have a closing ; as !important is appended to the end of the style to overwrite and existing style.</p>
-	
-	<p>This plugin is sponsored by: <a href=\"http://www.videousermanuals.com?ref=whitelabelcmsplugin\" target=\"_blank\">Video User Manuals</a></p>
-
-	";
-
-	add_contextual_help($wlcms_admin, $wlcms_help);
-
+function wlcms_add_menu() 
+{
+    add_options_page('White Label CMS','White Label CMS','manage_options','wlcms-plugin.php','wlcms_admin');
 }
 
-add_action('admin_menu', 'wlcms_add_menu');
+function wlcmsUserCompare($needsToBe,$current)
+{
+    if($needsToBe == '0' || $needsToBe == '')
+        return;
+ 
+    $roles = array( 'administrator' => 25 , 'editor' => 20, 'author' => 15, 'contributor' => 10, 'subscriber' => 5 );
 
-function wlcms_remove_dashboard_widgets() {
+    $needsToBe = $roles[$needsToBe];
+    $current = $roles[$current];
 
-	if ((!current_user_can('activate_plugins')) || (get_option('wlcms_o_dashboard_admin_only') == 0)) {
-	   global $wp_meta_boxes;
-	   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
-	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
-	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
-	   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-	   unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
-	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
-	   unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
-	  }
+    if($current >= $needsToBe ):
+        return true;
+    else:
+        return false;
+    endif;
 }
 
-function wlcms_remove_dashboard_browser() {
-	if ((!current_user_can('activate_plugins')) || (get_option('wlcms_o_dashboard_admin_only') == 0)) {
-		global $wp_meta_boxes;
-		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_browser_nag']);
-	}
+function wlcms_remove_others() {
+
+if( get_option('wlcms_o_dashboard_admin') && current_user_can('activate_plugins') ) { return; }
+
+global $wp_meta_boxes;
+unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
+unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
+unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
+unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
+unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
+unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
+unset($wp_meta_boxes['dashboard']['normal']['core']['custom_help_widget']);
+unset($wp_meta_boxes['dashboard']['normal']['core']['my_dashboard_widget']);
+ 
+}
+ 
+function wlcms_remove_right_now()
+{
+    if( get_option('wlcms_o_dashboard_admin') && current_user_can('activate_plugins') ) { return; }
+    global $wp_meta_boxes;
+    unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
+}
+ 
+function wlcms_remove_recent_comments() 
+{
+    if( get_option('wlcms_o_dashboard_admin') && current_user_can('activate_plugins') ) { return; }
+    global $wp_meta_boxes;
+    unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
 }
 
-function wlcms_remove_right_now() {
-	if ((!current_user_can('activate_plugins')) || (get_option('wlcms_o_dashboard_admin_only') == 0)) {
-		global $wp_meta_boxes;
-		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
-	}
+function wlcms_output()
+{
+    global $userdata;
+    $WP_Roles = new WP_Roles();
+    $role_names = $WP_Roles->get_names();
+    unset($role_names['administrator']);
+    $all_caps = wlcms_get_all_caps_from_wp_roles();
+
+    sort($all_caps);
+    $output = "<div id=\"roles_capabilities\">";
+
+    foreach($role_names as $role_id => $role_name)
+    {
+        $output .= "<div id=\"roles_$role_id\" class=\"edit_role_name\">";
+        $output .= "<ul class=\"role_name_editor\">";
+
+        foreach($all_caps as $capability)
+        {
+            $checked = isset($WP_Roles->roles[$role_id]['capabilities'][$capability])&&$WP_Roles->roles[$role_id]['capabilities']			[$capability]==1?'checked="checked"':'';
+            $output .= "<li><input type=\"checkbox\" $checked name=\"ROLES[$role_id][$capability]\" value=1 />&nbsp;".ucfirst(str_replace("_"," ",$capability))."</li>&nbsp; ";
+        }
+
+        $output .= "</ul>"; $output .= "</div>";
+    }
+    $output .= "</div>";
+    return $output;
 }
 
-// custom logo in header
-function wlcms_custom_logo() {
-	global $wp_version;
+function wlcms_get_all_caps_from_wp_roles()
+{
+    $WP_Roles = new WP_Roles();
+    $role_names = $WP_Roles->get_names();
+    $all_caps = array();
+    if(count($WP_Roles->roles)>0)
+    {
+        foreach($WP_Roles->roles as $role_id => $row)
+        {
+            foreach($row['capabilities'] as $capability => $allowed)
+            {
+                $all_caps[$capability]=$capability;
+            }
+        }
+    }
+    return $all_caps;
+}
+
+function wlcms_roles_dropdown($params = array())
+{
+    $wp_roles = new WP_Roles();
+    // remove unwanted roles
+    if(!empty($params['remove_role']))
+            unset($wp_roles->role_names[$params['remove_role']]);
+
+    return $wp_roles->role_names;
+}
+
+function wlcms_adminbar() 
+{
+     global $wp_version;
+
+    if(get_option('wlcms_o_dashboard_border')):
+    echo '<style type="text/css"> .postbox-container .meta-box-sortables.empty-container, #side-sortables.empty-container{border:0;} </style>';
+    endif;
+    if( get_option('wlcms_o_hide_wp_adminbar') ):
+        echo " \n\n <style type=\"text/css\">#wp-admin-bar-wp-logo { display:none; }</style> \n\n";
+    endif;
+
+    if( get_option('wlcms_o_adminbar_custom_logo') ):
+        $background = get_option('wlcms_o_adminbar_custom_logo');
+        if(!preg_match("@^https?://@", $background))
+            $background = get_bloginfo('stylesheet_directory').'/images/'.$background;
+
+        echo '<script type="text/javascript"> jQuery(document).ready(function(){ ';
+        echo  'jQuery("#wp-admin-bar-root-default").prepend(" <li id=\"wlcms_admin_logo\"> <span style=\"float:left;height:28px;line-height:28px;vertical-align:middle;text-align:center;width:28px\"><img src=\"'.$background.'\" width=\"16\" height=\"16\" alt=\"Login\" style=\"height:16px;width:16px;vertical-align:middle\" /> </span> </li> ");  }); ';
+        echo '</script> ';
+
+    endif;
+
    echo '<style type="text/css">';
-   echo '#header-logo { background-image: url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_header_custom_logo') . ') !important; ';
-   $css_width = get_option('wlcms_o_header_custom_logo_width');
-   if ($css_width != '') {
-	   	echo 'width: ' . get_option('wlcms_o_header_custom_logo_width') . '; ';
-	} else {
-		if (( version_compare( $wp_version, '3.2', '>=' ) ) && (get_option('wlcms_o_header_height') == 1)) {
-			echo 'width: 32px; ';
-		}	
-	}
-   	echo '} ';
-	if (( version_compare( $wp_version, '3.2', '>=' ) ) && (get_option('wlcms_o_header_height') == 1)) {
-		echo ' #wphead { height: 48px; }
-				   #wphead h1 { font-size: 22px; padding: 10px 8px 5px; }
-				   #header-logo { height: 32px; }
-				   #user_info { padding-top: 8px }
-				   #user_info_arrow { margin-top: 8px; }
-				   #user_info_links { top: 8px; }
-				   #footer p { padding-top: 15px; }
-				   #wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px;}
-				 ';
-	}	 
-	if (( version_compare( $wp_version, '3.2', '<' ) ) && (get_option('wlcms_o_header_height') == 0)) {
-		echo '#wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px; }';
-	}
-	if (get_option('wlcms_o_header_logo_link') == 1) {
-		echo '#site-heading { display: none; } ';
-	}
-	echo '</style>';
-	if (get_option('wlcms_o_header_logo_link') == 1) {
-		echo '<script type="text/javascript">';
-		echo "jQuery(function($){ $('#header-logo').wrap('<a href=\"" . site_url() . "\" alt=\"" . get_bloginfo('name') . "\" title=\"" . get_bloginfo('name') . "\">'); });";
-		echo '</script>';
-	}	
+
+    if(get_option('wlcms_o_header_custom_logo') != "")
+    {
+        $background = get_option('wlcms_o_header_custom_logo');
+
+        if(!preg_match("@^https?://@", $background))
+        $background = get_bloginfo('stylesheet_directory').'/images/'.$background;
+
+        echo '#header-logo { background-image: url('.$background . ') !important; ';
+        $css_width = get_option('wlcms_o_header_custom_logo_width');
+
+        if ($css_width != '')
+        {
+                echo 'width: ' . get_option('wlcms_o_header_custom_logo_width') . 'px; ';
+        }
+        else
+        {
+            if (( version_compare( $wp_version, '3.2', '>=' ) ) && (!empty($customHFHeight)))
+            {
+                    echo 'height: '.$customHFHeight.'px; ';
+            }
+        }
+        echo '} ';
+    }
+
+    if (( version_compare( $wp_version, '3.2', '>=' ) ) && (!empty($customHFHeight))) {
+            echo '  #wphead { height: '.$customHFHeight.'px; }
+                            #wphead h1 { font-size: 22px; padding: 10px 8px 5px; }
+                            #header-logo { height: 32px; }
+                            #user_info { padding-top: 8px }
+                            #user_info_arrow { margin-top: 8px; }
+                            #user_info_links { top: 8px; }
+                            #footer p { padding-top: 15px; }
+                            #wlcms-footer-container { padding-top: 10px; line-height: 30px;} '."\n";
+    }
+    if (( version_compare( $wp_version, '3.2', '<' ) ) && (empty($customHFHeight))) {
+            echo '#wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px; }';
+    }
+    if (get_option('wlcms_o_header_logo_link') == 1) {
+            echo '#site-heading { display: none; } ';
+    }
+    echo '</style>';
+    if (get_option('wlcms_o_header_logo_link') == 1) {
+            echo '<script type="text/javascript">';
+            echo "jQuery(function($){ $('#header-logo').wrap('<a href=\"" . site_url() . "\" alt=\"" . get_bloginfo('name') . "\" title=\"" . get_bloginfo('name') . "\">'); });";
+            echo '</script>';
+    }
 }
 
 // add footer logo
 function wlcms_remove_footer_admin() {
+    $footer_logo = get_option('wlcms_o_footer_custom_logo');
+    if($footer_logo)
+        if(!preg_match("@^https?://@", $footer_logo))
+                $footer_logo = get_bloginfo('stylesheet_directory').'/images/'.$footer_logo;
+
+        echo '<div id="wlcms-footer-container">';
+        if (get_option('wlcms_o_developer_url')) {
+        	if (get_option('wlcms_o_footer_custom_logo_width')) {
+        	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
+        	} else {
+        		echo '<img ';
+        	}
+           echo ' src="'.$footer_logo. '" id="wlcms-footer-logo"> <span> <a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' . get_option('wlcms_o_developer_name') . '</a> </span>';
+        } else {
+        	if (get_option('wlcms_o_footer_custom_logo_width')) {
+        	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
+        	} else {
+        		echo '<img ';
+        	}        
+            echo ' src="'.$footer_logo . '" id="wlcms-footer-logo"> <span>' . stripslashes(get_option('wlcms_o_developer_name')).'</span>';
+        }
+        echo '</div><p id="safari-fix"';
+}
+
+function wlcms_developer_link()
+{
     echo '<div id="wlcms-footer-container">';
-    if (get_option('wlcms_o_developer_url')) {
-		echo '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '"><img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . ';" src="'.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_footer_custom_logo') . '" id="wlcms-footer-logo"> ' . get_option('wlcms_o_developer_name') . '</a>';
-	} else {
-		echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . ';" src="'.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_footer_custom_logo') . '" id="wlcms-footer-logo"> ' . get_option('wlcms_o_developer_name');
-	}
-	echo '</div><p id="safari-fix"';
+    echo ( get_option('wlcms_o_developer_url') ? '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' : '' );
+    echo get_option('wlcms_o_developer_name');
+    echo ( get_option('wlcms_o_developer_url') ? '</a>' : '' );
+    echo '</div>';
 }
 
 
 // custom logo login
-function wlcms_custom_login_logo() {
+function wlcms_custom_login_logo()
+{
+    wp_print_scripts( array( 'jquery' ) );
+    $login_custom_logo = get_option('wlcms_o_login_custom_logo');
 
-	echo '<style type="text/css">
-	h1 a { background-image:url('.get_bloginfo('template_directory').'/images/' . get_option('wlcms_o_login_custom_logo') . ') !important; margin-bottom: 10px; }
-	#login{ background: ' . get_option('wlcms_o_login_bg') . '; padding: 20px;-moz-border-radius:11px;-khtml-border-radius:11px;-webkit-border-radius:11px;border-radius:5px; }
-	.login #login p#nav a {' . get_option('wlcms_o_login_lost') . '  !important }
-	</style>
-	<script type="text/javascript">
-		function loginalt() {
-			var changeLink = document.getElementById(\'login\').innerHTML;
-			changeLink = changeLink.replace("http://wordpress.org/", "' . site_url() . '");
-			changeLink = changeLink.replace("Powered by WordPress", "' . get_bloginfo('name') . '");			
-			document.getElementById(\'login\').innerHTML = changeLink;
-		}
-		window.onload=loginalt;
-	</script>
-	';
-}
+    if(!preg_match("@^https?://@", $login_custom_logo))
+            $login_custom_logo = get_bloginfo('stylesheet_directory').'/images/'.$login_custom_logo;
 
-/* add dashboard help widget */
-function wlcms_custom_dashboard_help() {
-	echo stripslashes(get_option('wlcms_o_welcome_text'));
-}
+    echo '<style type="text/css">';
+    echo wp_specialchars_decode( stripslashes( get_option('wlcms_o_login_bg_css') ), 1, 0, 1 );
 
-if (get_option('wlcms_o_show_welcome') == 1) {
-	function wlcms_add_dashboard_widget() {
-		wp_add_dashboard_widget('custom_help_widget', get_option('wlcms_o_welcome_title'), 'wlcms_custom_dashboard_help');
-	}
-}
+    if (get_option('wlcms_o_login_custom_logo')):
+        echo ' .login h1 a { display:all; background: url('.$login_custom_logo . ') no-repeat bottom center !important; margin-bottom: 10px; } ';
 
-// hide switch theme from right now panel for editors
-function wlcms_hide_switch_theme() {
-	if(!current_user_can( 'manage_options' ) ) {
-	   echo '
-		  <style type="text/css">
-			#dashboard_right_now .versions p, #dashboard_right_now .versions #wp-version-message  { display: none; }
-		  </style>  
-	   ';
-   }
-}
+        if(get_option('wlcms_o_loginbg_white') ):
+                echo ' body.login {background: #fff }';
+        endif;
 
-// actions
-// remove dashboard widgets
-if (get_option('wlcms_o_dashboard_remove_widgets') == 1) {
-		add_action('wp_dashboard_setup', 'wlcms_remove_dashboard_widgets');
-}
+        echo '</style> ';
 
-// remove browser panel
-if (get_option('wlcms_o_dashboard_browser') == 1) {
-	add_action('wp_dashboard_setup', 'wlcms_remove_dashboard_browser');
-}
+        echo '<script type="text/javascript">
+                function loginalt() {
+                        var changeLink = document.getElementById(\'login\').innerHTML;
+                        changeLink = changeLink.replace("http://wordpress.org/", "' . site_url() . '");
+                        changeLink = changeLink.replace("Powered by WordPress", "' . get_bloginfo('name') . '");
+                        document.getElementById(\'login\').innerHTML = changeLink;
+                }
+                window.onload=loginalt;
+        </script>';
 
-// remove nag update
-if (get_option('wlcms_o_dashboard_remove_nag_update') == 1) {
-	add_action( 'admin_init', create_function('', 'remove_action( \'admin_notices\', \'update_nag\', 3 );') );
-}
+    elseif( get_option('wlcms_o_login_bg') ):
+        echo '<style type="text/css">';
+        echo wp_specialchars_decode( stripslashes( get_option('wlcms_o_login_bg') ), 1, 0, 1 );
+        echo '</style> ';
+    endif;
 
-// remove right now
-if (get_option('wlcms_o_dashboard_remove_right_now') == 1) {
-	add_action('wp_dashboard_setup', 'wlcms_remove_right_now');
-}
-
-// add dashboard widget
-if (get_option('wlcms_o_show_welcome') == 1) {
-	add_action('wp_dashboard_setup', 'wlcms_add_dashboard_widget' );
-}
-
-// custom logos
-add_action('admin_head', 'wlcms_custom_logo');
-add_action('login_head', 'wlcms_custom_login_logo');
-
-// filter
-add_filter('admin_footer_text', 'wlcms_remove_footer_admin');
-
-// Contextual Help For Plugin
-function wlcms_my_contextual_help($text) {
-	$screen = $_GET['page'];
-	if ($screen == 'White Label CMS') {
-		$text = "<h5>Need help with this plugin?</h5>";
-		$text .= "<p>Check out the documentation and support forums for help with this plugin.</p>";
-		$text .= "<a href=\"http://example.org/docs\">Documentation</a><br /><a href=\"http://example.org/support\">Support forums</a>";
-	}
-	return $text;
-}
-add_action('contextual_help', 'wlcms_my_contextual_help');
-
-// remove switch theme from right now dashboard panel only for none admin
-add_action('admin_head', 'wlcms_hide_switch_theme');
-
-// remove unnecessary menus
-function remove_admin_menus () {
-	global $menu;
-	global $submenu;
+    if(get_option('wlcms_o_login_bg')):
+        echo '<script type="text/javascript"> jQuery(document).ready(function(){ jQuery("#login").wrap("<div id=\'wlcms-login-wrapper\'></div>"); }); </script> ';
+    endif;
 	
-	// $menu[60] = array( __('Appearance'), 'switch_themes', 'themes.php', '', 'menu-top menu-icon-appearance', 'menu-appearance', 'div' );	
-
-	// get the "author" role object
-	// $role = get_role( 'editor' );
-	
-	// add "switch_themes" to this role object
-	// $role->add_cap( 'switch_themes' );
-	
-	// add "edit_theme_options" to this role object to access menus
-	// $role->add_cap( 'edit_theme_options' );
-	
-	// remove "switch_themes" from this role object
-	// $role->remove_cap( 'switch_themes' );
-
-	$restrict_user[0] = '';
-	if (get_option('wlcms_o_hide_posts')) { array_push($restrict_user,__('Posts','default')); }
-	if (get_option('wlcms_o_hide_media')) { array_push($restrict_user,__('Media','default')); }
-	if (get_option('wlcms_o_hide_links')) { array_push($restrict_user,__('Links','default')); }
-	if (get_option('wlcms_o_hide_pages')) { array_push($restrict_user,__('Pages','default')); }
-	if (get_option('wlcms_o_hide_comments')) { array_push($restrict_user,__('Comments','default')); }
-	if (get_option('wlcms_o_hide_tools')) { array_push($restrict_user,__('Tools','default')); }
-	if (get_option('wlcms_o_hide_users')) { array_push($restrict_user,__('Profile','default')); }
-	if (get_option('wlcms_o_hide_separator2')) { $hideSeparator2 = true; } else { $hideSeparator2 = false; };
-
-	unset($restrict_user[0]);
-	
-	if (sizeof($restrict_user) > 0) {
-	
-		// WP localization
-		$f = create_function('$v,$i', '$v = __($v);');
-		
-		if (!current_user_can('activate_plugins')) {
-			array_walk($restrict_user, $f);
-
-			// remove menus
-			end($menu);
-			while (prev($menu)) {
-				$k = key($menu);
-				$v = explode(' ', $menu[$k][0]);
-				$s = explode(' ', $menu[$k][2]);
-				
-				if (($hideSeparator2) && ($s[0] == 'separator2')) {
-					unset($menu[$k]);
-				}
-				
-				if(in_array(is_null($v[0]) ? '' : $v[0] , $restrict_user)) unset($menu[$k]);
-				
-			}			
-		}
-	}
-	
-	if ((get_option('wlcms_o_show_appearance')) || ( get_option('wlcms_o_show_widgets'))) {
-
-		if (!current_user_can('activate_plugins')) {
-	
-			// theme
-			unset($submenu['themes.php'][5]);
-			
-			if (! get_option('wlcms_o_show_appearance')) {
-				// menu
-				unset($submenu['themes.php'][10]);	
-			}
-			if (! get_option('wlcms_o_show_widgets')) {
-				// widgets
-				unset($submenu['themes.php'][7]);	
-			}
-		}
-	}
 }
-add_action('admin_menu', 'remove_admin_menus');
+ 
+function wlcms_custom_dashboard_help()
+{
+    echo stripslashes(get_option('wlcms_o_welcome_text'));
+}
+function wlcms_custom_dashboard_help_new()
+{
+    echo stripslashes(get_option('wlcms_o_welcome_text1'));
+}
 
-function plugin_deactivate() {
-    // Cleanup
-    plugin_cleanup();
-} // end :: function :: plugin_deactivate
+function wlcms_add_dashboard_widget_custom() 
+{
 
-function plugin_cleanup() {
-    // Delete our options
-    delete_option(wlcms_o_dashboard_remove_right_now); 
-    delete_option(wlcms_o_dashboard_browser);
-    delete_option(wlcms_o_dashboard_remove_widgets);
-    delete_option(wlcms_o_dashboard_admin_only);   
-    delete_option(wlcms_o_dashboard_remove_nag_update);
-    delete_option(wlcms_o_header_logo_link);    
-    delete_option(wlcms_o_header_height);    
-    delete_option(wlcms_o_header_custom_logo);
-    delete_option(wlcms_o_header_custom_logo_width);
-    delete_option(wlcms_o_footer_custom_logo);
-    delete_option(wlcms_o_footer_custom_logo_width);
-    delete_option(wlcms_o_developer_url);
-    delete_option(wlcms_o_developer_name);
-    delete_option(wlcms_o_login_custom_logo);
-    delete_option(wlcms_o_login_bg);
-    delete_option(wlcms_o_login_lost);
-    delete_option(wlcms_o_show_welcome);
-    delete_option(wlcms_o_welcome_title);
-    delete_option(wlcms_o_welcome_text);
-    delete_option(wlcms_o_hide_profile);
-    delete_option(wlcms_o_hide_posts);
-    delete_option(wlcms_o_hide_media);
-    delete_option(wlcms_o_hide_links);
-    delete_option(wlcms_o_hide_pages);
-    delete_option(wlcms_o_hide_comments);
-    delete_option(wlcms_o_hide_users);
-    delete_option(wlcms_o_hide_tools);
-    delete_option(wlcms_o_hide_separator2);
-    delete_option(wlcms_o_show_widgets);
-    delete_option(wlcms_o_show_appearance);
+    if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to')),  strtolower( wlcms_get_current_user_role() ) ) ):
+
+    wp_add_dashboard_widget('custom_help_widget', get_option('wlcms_o_welcome_title'), 'wlcms_custom_dashboard_help');
+
+    endif;
+
+    if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to1')),  strtolower( wlcms_get_current_user_role() ) ) ):
+
+    wp_add_dashboard_widget('my_dashboard_widget', get_option('wlcms_o_welcome_title1'), 'wlcms_custom_dashboard_help_new');
+
+    endif;
+}
+
+function remove_footer_version()
+{
+    return '';
+}
+
+function wlcms_hide_wp_version()
+{
+    echo '<style type="text/css">#wp-version-message { display: none;}</style>';
+}
+	
+function wlcms_get_current_user_role() {
+    global $wp_roles;
+    $current_user = wp_get_current_user();
+    $roles = $current_user->roles;
+    $role = array_shift($roles);
+    return isset($wp_roles->role_names[$role]) ? translate_user_role($wp_roles->role_names[$role] ) : false;
+}
+
+function wlcms_custom_editor_stylesheet($url)
+{ 
+    if( get_option('wlcms_o_welcome_stylesheet')):
+        $url = get_stylesheet_directory_uri() . '/' ;
+        $url .= get_option('wlcms_o_welcome_stylesheet');
+        return $url;
+    endif;
+}
+
+function wlcms_hide_switch_theme()
+{
+    if(!current_user_can( 'manage_options' ) ):
+       echo '<style type="text/css">
+                    #dashboard_right_now .versions p, #dashboard_right_now .versions #wp-version-message  { display: none; }
+              </style>
+       ';
+    endif;
+}
+
+function wlcms_admin_title($admin_title)
+{
+    if( get_option('wlcms_o_admin_page_title') ):
+        return str_replace (
+                "&#8212; WordPress",
+                get_option('wlcms_o_admin_page_title'),
+                $admin_title
+        );
+    else:
+        return $admin_title;
+    endif;
+}
+
+function wlcms_remove_admin_menus () {
+    global $menu, $submenu;
+
+    $exclude[0] = '';
     
-    // remove editor changes
-	$role = get_role( 'editor' );
-	$role->remove_cap( 'switch_themes' );
-	$role->remove_cap( 'edit_theme_options' );    
+    if (get_option('wlcms_o_hide_comments'))
+        array_push($exclude,__('Comments','default'));
+    if (get_option('wlcms_o_hide_tools'))
+        array_push($exclude,__('Tools','default'));
+    if (get_option('wlcms_o_hide_profile'))
+        array_push($exclude,__('Profile','default'));
+
+
+ //  print_r($menu);die;
+
+    unset($exclude[0]);
+
+    if (sizeof($exclude) > 0):
+        if (!current_user_can('activate_plugins')):
+            foreach($menu as $mId=>$menuArray):
+                if(in_array( $menuArray[0] , $exclude )) unset($menu[$mId]);
+            endforeach;
+        endif;
+    endif;
+
+   if(isset($submenu['themes.php'])):
+        if (!current_user_can('activate_plugins')):
+            foreach( $submenu['themes.php'] as $k=>$v):
+                if(get_option('wlcms_o_subtemplate_hide_'.$k) ):
+                        unset($submenu['themes.php'][$k]);
+                endif;
+            endforeach;
+        endif;
+    endif;
+
+}	
+ 
+function wlcms_custom_pages_columns($defaults) 
+{
+    if (get_option('wlcms_o_page_meta_box_comments'))
+            unset($defaults['comments']);
+    if (get_option('wlcms_o_page_meta_box_author'))
+            unset($defaults['author']);
+    return $defaults;
+}
+
+function wlcms_remove_default_page_metaboxes()
+{
+    add_filter('manage_pages_columns', 'wlcms_custom_pages_columns');
+
+    if (get_option('wlcms_o_page_meta_box_custom'))
+        remove_meta_box( 'postcustom','page','normal' );
+    if (get_option('wlcms_o_page_meta_box_author'))
+        remove_meta_box( 'authordiv','page','normal' );
+    if (get_option('wlcms_o_page_meta_box_discussions'))
+        remove_meta_box( 'commentstatusdiv','page','normal' );
+    if (get_option('wlcms_o_page_meta_box_slug'))
+        remove_meta_box( 'slugdiv','page','normal' );
+    if (get_option('wlcms_o_page_meta_box_revisions'))
+        remove_meta_box( 'revisionsdiv','page','normal' );
+    if (get_option('wlcms_o_page_meta_box_page'))
+        remove_meta_box( 'pageparentdiv','page','normal' );
+    if (get_option('wlcms_o_page_meta_box_comments'))
+        remove_meta_box( 'commentsdiv','page','normal' );
+}
+
+function wlcms_custom_post_columns($defaults) 
+{
+    if (get_option('wlcms_o_post_meta_box_comments'))
+        unset($defaults['comments']);
+    if (get_option('wlcms_o_post_meta_box_author'))
+        unset($defaults['author']);
+    if (get_option('wlcms_o_post_meta_box_categories'))
+        unset($defaults['categories']);
+    return $defaults;
+}
+
+function wlcms_manage_my_category_columns($defaults)
+{
+    if (get_option('wlcms_o_post_meta_box_slug'))
+            unset($defaults['slug']);
+    return $defaults;
+}
+
+function wlcms_remove_default_post_metaboxes() 
+{
+    add_filter('manage_posts_columns', 'wlcms_custom_post_columns');
+    add_filter('manage_edit-post_tag_columns','wlcms_manage_my_category_columns');
+    add_filter('manage_edit-category_columns','wlcms_manage_my_category_columns');
+
+    if (get_option('wlcms_o_post_meta_box_custom'))
+        remove_meta_box( 'postcustom','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_excerpt'))
+        remove_meta_box( 'postexcerpt','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_discussions'))
+        remove_meta_box( 'commentstatusdiv','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_send'))
+        remove_meta_box( 'trackbacksdiv','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_slug'))
+        remove_meta_box( 'slugdiv','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_author'))
+        remove_meta_box( 'authordiv','post','normal');
+    if (get_option('wlcms_o_post_meta_box_revisions'))
+        remove_meta_box( 'revisionsdiv','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_tags'))
+        remove_meta_box( 'tagsdiv-post_tag','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_categories'))
+        remove_meta_box( 'categorydiv','post','normal' );
+    if (get_option('wlcms_o_post_meta_box_comments'))
+        remove_meta_box( 'commentsdiv','post','normal' );
+}
+
+function wlcms_add_admin() 
+{
+	
+global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
+
+    if ( isset($_GET['page']) && $_GET['page'] == 'wlcms-plugin.php')
+     {
+        if ( isset($_REQUEST['action']) && 'save' == $_REQUEST['action'] )
+        {
+            add_action('admin_init', 'wlcmsSave');
+        }
+        else if( isset($_REQUEST['action']) && 'reset' == $_REQUEST['action'] )
+        {
+            add_action('admin_init', 'wlcmsReset');
+        }
+    }
+}
+
+function wlcmsSave()
+{
+    include('includes/admin.config.php');
+
+    update_option('wlcms_o_ver', WLCMS);
     
-} // end :: function :: plugin_cleanup
+    foreach ($wlcmsOptions as $value):
+        if( isset( $value['id'] ) && isset( $_REQUEST[ $value['id'] ] ) ):
+            update_option( $value['id'], $_REQUEST[ $value['id'] ]  );
+        elseif( isset( $value['id'] ) && (!isset($_REQUEST[$value['id']])) ):
+            delete_option( $value['id'] );
+        endif;
+    endforeach;
 
+    wlcmsUpdateCaps();
 
-/**********************************/
-/*  Admin Page */
-/**********************************/
-$wlcmsThemeName = "White Label CMS";
-$wlcmsShortName = "wlcms_o";
+    if($_REQUEST['wlcms_o_editor_template_access'] == "1")
+    {
+        $role = get_role( 'editor' );
+        $role->add_cap( 'edit_theme_options' );
+    }
+    else
+    {
+        $role = get_role( 'editor' );
+        $role->remove_cap( 'switch_themes' ); // Legacy
+        $role->remove_cap( 'edit_theme_options' );
+    }
 
-$wlcmsOptions = array (
- 
-array( "name" => $wlcmsThemeName." Options",
-	"type" => "title"),
- 
-
-array( "name" => "Branding",
-	"type" => "section"),
-array( "type" => "open"),
-
-
-
-array( "name" => "Classic Header/Footer Height",
-	"desc" => "<b>3.2 Only</b> - This will change the Header height to 46px, pre WordPress 3.2 size (better for branding)",
-	"id" => $wlcmsShortName."_header_height",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 0),
-
-array( "name" => "Custom Header Logo",
-	"desc" => "This is the logo that will appear in the header.  It should be a transparent .gif or.png and about 32px by 32px. You should upload the logo to the current theme /images/ directory",
-	"id" => $wlcmsShortName."_header_custom_logo",
-	"type" => "text",
-	"std" => 'custom-logo.gif'),
-
-array( "name" => "Custom Header Logo Width",
-	"desc" => "Leave blank for default value of 32px. Make sure you append px. For example 100px",
-	"id" => $wlcmsShortName."_header_custom_logo_width",
-	"type" => "text",
-	"std" => ''),
-	
-array( "name" => "Header Logo As Site Link",
-	"desc" => "The logo that appears in the header with be the link to the site. It will remove the text link",
-	"id" => $wlcmsShortName."_header_logo_link",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 0),	
-
-array( "name" => "Custom Footer Logo",
-	"desc" => "This is the logo that will appear in the footer.  It should be a transparent .gif or.png and about 32px by 32px. You should upload the logo to the current theme /images/ directory",
-	"id" => $wlcmsShortName."_footer_custom_logo",
-	"type" => "text",
-	"std" => 'custom-logo.gif'),
-
-array( "name" => "Custom Footer Logo Width",
-	"desc" => "Leave blank for default value of 32px. Make sure you append px. For example 100px",
-	"id" => $wlcmsShortName."_footer_custom_logo_width",
-	"type" => "text",
-	"std" => ''),
-	
-array( "name" => "Developer Website URL",
-	"desc" => "There will be a link to your website in the footer.  Leave it blank if you don't want the link otherwise please include http://",
-	"id" => $wlcmsShortName."_developer_url",
-	"type" => "text",
-	"std" => ''),	
-	
-array( "name" => "Developer Website Name",
-	"desc" => "The developer's name will appear in the footer",
-	"id" => $wlcmsShortName."_developer_name",
-	"type" => "text",
-	"std" => ''),		
-
-array( "name" => "Custom Login Logo",
-	"desc" => "This logo will appear on the login page. It should be about 300px by 80px.",
-	"id" => $wlcmsShortName."_login_custom_logo",
-	"type" => "text",
-	"std" => 'custom_login_logo.gif'),		
-
-array( "name" => "Login Background Color",
-	"desc" => "This is the color of the background which will contain your logo.",
-	"id" => $wlcmsShortName."_login_bg",
-	"type" => "text",
-	"std" => '#FFFFFF'),		
-
-array( "name" => "Lost Your Password CSS",
-	"desc" => "Must follow this format: text-shadow:none; color: #333",
-	"id" => $wlcmsShortName."_login_lost",
-	"type" => "text",
-	"std" => ''),			
-	
-array( "type" => "close"),
-array( "name" => "Dashboard Panels",
-	"type" => "section"),
-array( "type" => "open"),
-
-array( "name" => "Hide 'Right Now'",
-	"desc" => "This will hide the Right Now panel from the dashboard",
-	"id" => $wlcmsShortName."_dashboard_remove_right_now",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 0),
-
-array( "name" => "Hide Browser Update Panel",
-	"desc" => "Hides the browser update panel",
-	"id" => $wlcmsShortName."_dashboard_browser",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 1),	
-	
-array( "name" => "Hide Other Dashboard Panels",
-	"desc" => "This will hide all standard dashboard panels except the Right Now panel",
-	"id" => $wlcmsShortName."_dashboard_remove_widgets",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 1),
-
-array( "name" => "Show Dashboard To Admin",
-	"desc" => "This will show the dashboard panels to the admin, but editors will not see them.",
-	"id" => $wlcmsShortName."_dashboard_admin_only",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 0),
-	
-array( "name" => "Hide Nag Update",
-	"desc" => "This will hide the Nag Update for out of date versions of wordpress",
-	"id" => $wlcmsShortName."_dashboard_remove_nag_update",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 1),	
-
-array( "name" => "Add You Own Welcome Panel?",
-	"desc" => "This will appear on the dashboard.  We recommend providing your contact details and links to the help files you have made for your client.",
-	"id" => $wlcmsShortName."_show_welcome",
-	"type" => "radio",
-	"options" => array("1", "0"),
-	"std" => 0 ),	
-
-array( "name" => "Welcome Panel Settings",
-	"type" => "subsectionvars"),
-
-array( "name" => "Title",
-	"desc" => "The title of your dashboard panel.",
-	"id" => $wlcmsShortName."_welcome_title",
-	"type" => "textlocalvideo",
-	"std" => 'Welcome To Your New Website'),	
-
-array( "name" => "Description",
-	"desc" => "Please add the text in html format here.",
-	"id" => $wlcmsShortName."_welcome_text",
-	"type" => "textarea",
-	"std" => ''),		
-
-array( "type" => "close"),
-
-array( "name" => "Modify Menus",
-	"type" => "section"),
-array( "type" => "open"),
-
-array( "name" => "These changes will only effect people with the user role of <strong>Editor</strong> or below.  You are currently logged is as the admin, so you will not see any changes in the menus until you login with a different user role.",
-	"type" => "message"),
-
-array( "name" => "Choose A CMS Profile",
-	"desc" => "Which profile best fits your clients needs?",
-	"id" => $wlcmsShortName."_hide_profile",
-	"type" => "radioprofile",
-	"options" => array("1", "2","3"),
-	"std" => '1'),	
-	
-array( "name" => "Hide Posts Menu",
-	"desc" => "Hides Posts from left menu",
-	"id" => $wlcmsShortName."_hide_posts",
-	"type" => "checkbox",
-	"std" => 0),	
-
-array( "name" => "Hide Media Menu",
-	"desc" => "Hides Media from left menu",
-	"id" => $wlcmsShortName."_hide_media",
-	"type" => "checkbox",
-	"std" => 0),			
-
-array( "name" => "Hide Links Menu",
-	"desc" => "Hides Links from left menu",
-	"id" => $wlcmsShortName."_hide_links",
-	"type" => "checkbox",
-	"std" => 0),
-
-array( "name" => "Hide Pages Menu",
-	"desc" => "Hides Pages from left menu",
-	"id" => $wlcmsShortName."_hide_pages",
-	"type" => "checkbox",
-	"std" => 0),
-
-array( "name" => "Hide Comments Menu",
-	"desc" => "Hides Comments from left menu",
-	"id" => $wlcmsShortName."_hide_comments",
-	"type" => "checkbox",
-	"std" => 0),
-	
-array( "name" => "Hide Users / Profile Menu",
-	"desc" => "Hides Users / Profile from left menu",
-	"id" => $wlcmsShortName."_hide_users",
-	"type" => "checkbox",
-	"std" => 0),	
-
-array( "name" => "Hide Tools Menu",
-	"desc" => "Hides Tools from left menu",
-	"id" => $wlcmsShortName."_hide_tools",
-	"type" => "checkbox",
-	"std" => 0),	
-
-array( "name" => "Hide 2nd Separator",
-	"desc" => "Hides 2nd separator",
-	"id" => $wlcmsShortName."_hide_separator2",
-	"type" => "checkboxlast",
-	"std" => 0),
-	
-array( "name" => "The following change will display the Widgets or Menus option in Appearance to users with the role of <strong>Editor</strong>. Please refer to the help tab to understand the consequences of enabling this option.",
-	"type" => "message2"),	
-	
-array( "name" => "Show Appearance > Widgets",
-	"desc" => "Shows the submenu 'Widgets' under the Appearance tab.",
-	"id" => $wlcmsShortName."_show_widgets",
-	"type" => "checkbox",
-	"std" => 0),	
-
-array( "name" => "Show Appearance > Menus",
-	"desc" => "Shows the submenu 'Menus' under the Appearance tab.",
-	"id" => $wlcmsShortName."_show_appearance",
-	"type" => "checkboxlastv3",
-	"std" => 0),	
-
-array( "type" => "close")
-
-);
-
-
-function wlcms_add_admin() {
- 
-global $wlcmsThemeName, $wlcmsShortName, $wlcmsOptions;
-
-
-// setup options for first time
-foreach ($wlcmsOptions as $value) {
-		if ($value['id'] != '') {
-			add_option( $value['id'], $value['std']  );
-		}
-}
- 
- 
-if ( $_GET['page'] == 'wlcms-plugin.php') {
- 
-	if ( 'save' == $_REQUEST['action'] ) {
- 
-		foreach ($wlcmsOptions as $value) {
-		update_option( $value['id'], $_REQUEST[ $value['id'] ] ); }
- 
-		foreach ($wlcmsOptions as $value) {
-			if( isset( $_REQUEST[ $value['id'] ] ) ) { update_option( $value['id'], $_REQUEST[ $value['id'] ]  ); } else { delete_option( $value['id'] ); } 
-		}
-		
-		// update editor capabilities
-		if (($_REQUEST['wlcms_o_show_appearance']) || ($_REQUEST['wlcms_o_show_widgets'])) {
-			$role = get_role( 'editor' );
-			$role->add_cap( 'switch_themes' );
-			$role->add_cap( 'edit_theme_options' );
-		} else {
-			$role = get_role( 'editor' );
-			$role->remove_cap( 'switch_themes' );
-			$role->remove_cap( 'edit_theme_options' );
-		}
- 
-	header("Location: admin.php?page=wlcms-plugin.php&saved=true");
-die;
- 
-} 
-else if( 'reset' == $_REQUEST['action'] ) {
- 
-	foreach ($wlcmsOptions as $value) {
-		delete_option( $value['id'] ); }
-		
-	// remove editor capabilities
-	$role = get_role( 'editor' );
-	$role->remove_cap( 'switch_themes' );
-	$role->remove_cap( 'edit_theme_options' );
-
-	header("Location: admin.php?page=wlcms-plugin.php&reset=true");
-die;
- 
-}
+    header("Location: admin.php?page=wlcms-plugin.php&saved=true");
+    die;
 }
 
+function wlcmsReset()
+{
+    include('includes/admin.config.php');
+    foreach ($wlcmsOptions as $value):
+        if(isset($value['id'])):
+            delete_option( $value['id'] );
+        endif;
+    endforeach;
+
+    header("Location: admin.php?page=wlcms-plugin.php&reset=true");
+    die;
 }
 
-function wlcms_add_init() {
+function wlcmsUpdateCaps()
+{
+    $config = array(
+        array(
+            'key'   =>  'wlcms_o_hide_posts',
+            'caps'  =>  array('edit_posts', 'manage_categories')
+        ),
+        array(
+            'key'   =>  'wlcms_o_hide_pages',
+            'caps'  =>  array('edit_pages')
+        ),
+        array(
+            'key'   =>  'wlcms_o_hide_media',
+            'caps'  =>  array('upload_files')
+        ),
+        array(
+            'key'   =>  'wlcms_o_hide_links',
+            'caps'  =>  array('manage_links')
+        )
+    );
 
-wp_enqueue_style('white-label-cms', plugins_url('white-label-cms/css/wlcms_style.css'), false, '1.0', 'all');
-wp_enqueue_script("white-label-cms", plugins_url('white-label-cms/scripts/wlcms_script.js'), false, "1.0");
-
+    foreach($config as $opts):
+        if(isset( $_POST[ $opts['key'] ] )):
+            $role = get_role( 'editor' );
+            foreach($opts['caps'] as $cap):
+                $role->remove_cap( $cap );
+            endforeach;
+        else:
+            $role = get_role( 'editor' );
+            foreach($opts['caps'] as $cap):
+                $role->add_cap( $cap );
+            endforeach;
+        endif;
+    endforeach;
 }
-function wlcms_admin() {
- 
-global $wlcmsThemeName, $wlcmsShortName, $wlcmsOptions;
-$i=0;
- 
-if ( $_REQUEST['saved'] ) echo '<div id="message" class="updated fade"><p><strong>'.$wlcmsThemeName.' settings saved.</strong></p></div>';
-if ( $_REQUEST['reset'] ) echo '<div id="message" class="updated fade"><p><strong>'.$wlcmsThemeName.' settings reset.</strong></p></div>';
- 
-?>
-<div class="wrap wlcms_wrap">
-<h2><?php echo $wlcmsThemeName; ?> Settings</h2>
- 
-<div class="wlcms_opts">
-<form method="post">
-<?php foreach ($wlcmsOptions as $value) {
-switch ( $value['type'] ) {
- 
-case "open":
-?>
- 
-<?php break;
- 
-case "close":
-?>
- 
-</div>
-</div>
-<br />
 
- 
-<?php break;
- 
-case "title":
-?>
-<p><strong>For a detailed explanation of the plugin please refer to the help tab.</strong></p>
+function wlcms_add_init() 
+{
 
-<p><em>Please Note:</em> Custom logo images should be uploaded to the current theme /images/ directory.</p> 
- 
-<?php break;
- 
-case 'text':
-?>
-<?php if ($value['id']=='wlcms_o_header_custom_logo' || $value['id']=='wlcms_o_footer_custom_logo' )  {  ?>
+    global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
 
-<div style="border:0;" class="wlcms_input wlcms_text">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
- 	<input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" type="<?php echo $value['type']; ?>" value="<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id'])  ); } else { echo $value['std']; } ?>" />
- <small><?php echo $value['desc']; ?></small>
-<div class="clearfix"></div>
- 
- </div>
- 
-<?php } else {       ?>
-<div class="wlcms_input wlcms_text">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
- 	<input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" type="<?php echo $value['type']; ?>" value="<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id'])  ); } else { echo $value['std']; } ?>" />
- <small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- 
- </div>
+if(! get_option('wlcms_o_welcome_title') )
+{
+        include('includes/admin.config.php');
+        foreach ($wlcmsOptions as $value):
+                if ( isset($value['id']) && $value['id'] != '' && isset($value['std']) ):
+                        add_option( $value['id'], $value['std']  );
+                endif;
+        endforeach;
+ }
 
-<?php }  ?>
- <?php break;
- case 'textlocalvideo':
-?>
+    wp_enqueue_script('media-upload');
+    wp_enqueue_script('thickbox');
+    wp_register_script('my-upload', plugins_url('white-label-cms/scripts/wlcms_script.js'), array('jquery','media-upload','thickbox'));
+    wp_enqueue_script('my-upload');
+    wp_enqueue_style('thickbox');
+    wp_enqueue_style('white-label-cms', plugins_url('white-label-cms/css/wlcms_style.css'), false, '1.0', 'all');
+}
+function wlcms_nag()
+{
+    if ( ! get_option('wlcms_o_ver') ) echo '<div id="message" class="updated fade"><p><strong>Please update your <a href="admin.php?page=wlcms-plugin.php">White Label CMS Settings</a></strong></p></div>';
+}
+function wlcms_admin() 
+{
+    global $menu, $submenu;
+    $i=0;
+    include('includes/admin.config.php');
 
-<div class="wlcms_input_local_video wlcms_text">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
- 	<input name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" type="text" value="<?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id'])  ); } else { echo $value['std']; } ?>" />
- <small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- 
- </div>
-  <?php break;
- case 'message':
-?>
-<div class="wlcms_input_message wlcms_text">
-	<div id="icon-users" class="wlcms-icon32"><br></div><?php echo $value['name']; ?>
- </div>
+    if ( isset($_REQUEST['saved']) && $_REQUEST['saved'] ) echo '<div id="message" class="updated fade"><p><strong> Settings saved.</strong></p></div>';
+    if ( isset($_REQUEST['reset']) && $_REQUEST['reset'] ) echo '<div id="message" class="updated fade"><p><strong> Settings reset.</strong></p></div>';
+
+    require('includes/admin.view.php');
+}
+
+function wlcms_iframe_mod()
+{
+    if( (isset($_GET['wlcms']) ) ||  isset( $_GET["post_id"] ) && ( $_POST['post_id'] == '0' ) )
+    { ?>
+    <style type="text/css">
+        #media-upload-header #sidemenu li#tab-type_url,
+        #media-upload-header #sidemenu li#tab-gallery {display: none;}
+        #media-items tr.url,#media-items tr.align,#media-items tr.image_alt,
+        #media-items tr.post_title,  #media-items tr.image-size,
+        #media-items tr.post_excerpt,#media-items tr.post_content,
+        #media-items tr.image_alt p, #media-items table thead input.button,
+        #media-items table thead img.imgedit-wait-spin,
+        #media-items tr.submit a.wp-post-thumbnail {display: none;}
+    </style>
+    <script type="text/javascript">
+    (function($){
+    $(document).ready(function(){
+        $('#media-items').bind('DOMNodeInserted',function(){
+            $('input[value="Insert into Post"]').each(function(){
+                    $(this).attr('value','Use This Image');
+            });
+        });
+    });
+
+    })(jQuery);
+    </script>
 <?php
-break;
-
-case 'message2':
-?>
-<div class="wlcms_input_message wlcms_text">
-	<div id="icon-themes" class="wlcms-icon32"><br></div><?php echo $value['name']; ?>
- </div>
-<?php
-break;
- 
-case 'textarea':
-?>
-
-<div class="wlcms_input_welcome_last wlcms_textarea">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
- 	<textarea name="<?php echo $value['id']; ?>" type="<?php echo $value['type']; ?>" cols="" rows=""><?php if ( get_settings( $value['id'] ) != "") { echo stripslashes(get_settings( $value['id']) ); } else { echo $value['std']; } ?></textarea>
- 	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- </div>
- </div><!-- end of subsection -->
-  
-<?php
-break;
- 
-case 'select':
-?>
-
-<div class="wlcms_input wlcms_select">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
-	
-<select name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>">
-<?php foreach ($value['options'] as $option) { ?>
-		<option <?php if (get_settings( $value['id'] ) == $option) { echo 'selected="selected"'; } ?>><?php echo $option; ?></option><?php } ?>
-</select>
-
-	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
-</div>
-<?php
-break;
- case "checkboxlast":
- case "checkbox":
-?>
-
-<div class="<?php if($value['type']  == 'checkbox') { echo 'wlcms_input_local_video'; } else { echo 'wlcms_checkbox_last'; }?> wlcms_checkbox">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
-	
-<?php if(get_option($value['id'])){ $checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked'; }else{ $checked = ""; $remChecked = '';} ?>
-<input type="checkbox" name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" value="true" <?php echo $checked; ?> class="<?php echo $remChecked; ?>" />
-
-
-	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- </div>
- <?php
-break;
-case "checkboxlastv3":
-	// only show if version 3 of WordPress or above
-	global $wp_version;
-	if (substr($wp_version,0,3) < 3) {
-		echo '<div class="wlcms_checkbox_last wlcms_checkbox">';
-		echo '<input type="hidden" name="' . $value['id'] . '" id="' . $value['id'] . '" value="" />';
-		echo '<div class="clearfix"></div>';
-		echo '</div>';
-	} else {
-?>
-<div class="<?php if($value['type']  == 'checkbox') { echo 'wlcms_input_local_video'; } else { echo 'wlcms_checkbox_last'; }?> wlcms_checkbox">
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
-	
-<?php if(get_option($value['id'])){ $checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked'; }else{ $checked = ""; $remChecked = '';} ?>
-<input type="checkbox" name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" value="true" <?php echo $checked; ?> class="<?php echo $remChecked; ?>" />
-
-
-	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- </div>
-<?php 
-	}
-break; 
-case "radio":
-?>
-
-<div class="wlcms_input wlcms_radio" <?php if($value['id'] == 'wlcms_o_show_welcome') { echo ' id="form-show-welcome" '; }?> >
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
-
-<?php 
-$counter = 1;
-foreach ($value['options'] as $option) { ?>
-	<?php if(get_option($value['id']) ==  $option){ $checked = "checked=\"checked\""; }else{ $checked = ""; } ?>
-	<label class="radioyesno"><?php if ($counter == 1) { echo 'yes'; } else { echo 'no'; } ?><input type="radio" name="<?php echo $value['id']; ?>" class="<?php echo $value['id']; ?>" value="<?php echo $option; ?>" <?php echo $checked; ?> /></label>
-<?php
-$counter++;
+    }
 }
-?>
-
-	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- </div>
-<?php break; 
-case "radioprofile":
-?>
-
-<div class="wlcms_input_profile" <?php if($value['id'] == 'wlcms_o_show_welcome') { echo ' id="form-show-welcome" '; }?> >
-	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
-
-<?php 
-$counter = 1;
-foreach ($value['options'] as $option) { ?>
-		<?php 
-			switch ($counter) {
-				case 1:
-					$profileName = 'Custom';
-					if(get_option($value['id']) ==  1){ $checked = "checked=\"checked\""; }else{ $checked = ""; }
-					break;
-				case 2:
-					$profileName = 'Website';
-					if(get_option($value['id']) ==  2){ $checked = "checked=\"checked\""; }else{ $checked = ""; }
-					break;
-				case 3:
-					$profileName = 'Blog';
-					if(get_option($value['id']) ==  3){ $checked = "checked=\"checked\""; }else{ $checked = ""; }					
-					break;
-			}		
-		?>
-		<label class="radio<?php echo $profileName;?>"><?php echo $profileName;?><input type="radio" name="wlcms_o_radio_profiles" class="<?php echo $value['id']; ?>" value="<?php echo $counter; ?>" <?php echo $checked; ?> id="radio<?php echo $profileName; ?>" /></label>
-<?php
-$counter++;
-}
-?>
-
-	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
- </div> 
-<?php break; 
-case "section":
-
-$i++;
-
-?>
-
-<div class="wlcms_section">
-<div class="wlcms_title"><h3><img src="<?php bloginfo('wpurl')?>/wp-content/plugins/white-label-cms/images/trans.png" class="inactive" alt="""><?php echo $value['name']; ?></h3><span class="submit"><input name="save<?php echo $i; ?>" type="submit" value="Save changes" />
-</span><div class="clearfix"></div></div>
-<div class="wlcms_options" style="display: none;">
-
- 
-<?php break;
-case "subsection":
-?>
-<div id="v<?php echo str_replace(" ", "", $value['name']); ?>" class="video-h">
-<h4><?php echo $value['name']; ?> <span class="submit"><input type="submit" value="clear" onclick="clearvid('v<?php echo str_replace(" ", "", $value['name']); ?>');return false;" /></span></h4>
-<div class="clearfix"></div>
-
-
-<?php break;
-case "subsectionvars":
-?>
-<div id="v<?php echo str_replace(" ", "", $value['name']); ?>" class="video-h">
-<h4><?php echo $value['name']; ?></h4>
-<div class="clearfix"></div>
- 
-<?php break;
- 
-}
-}
-?>
- 
-<input type="hidden" name="action" value="save" />
-</form>
- </div> 
- 
-<form method="post">
-<p class="submit" id="wlcm-reset">
-Click here to reset the plugin: 
-<input name="reset" type="submit" value="Reset" />
-<input type="hidden" name="action" value="reset" />
-</p>
-</form> 
- 
-<div id="ajax_msg"></div>
-<div id="ajax_content"></div>
-<script type="text/javascript">
-		jQuery.getJSON('http://wordpress.videousermanuals.com/white-label-cms.php?jsoncallback=?',
-			{word:'foo'},
-			function(data, textStatus){
-				jQuery('#ajax_content').append(data);
-			});
-</script>
-
-<?php
-}
-?>
-<?php
-add_action('admin_init', 'wlcms_add_init');
-add_action('admin_menu', 'wlcms_add_admin');
-register_deactivation_hook( __FILE__, 'plugin_deactivate' );
 ?>

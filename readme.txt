@@ -7,25 +7,27 @@ Tags: cms, custom, admin, branding, dashboard, administration, plugin, login, cl
 Author URI: http://www.videousermanuals.com
 Author:  Video User Manuals
 Donate link: 
-Requires at least: 2.8 
-Tested up to: 3.2
-Stable tag: 1.3
-Version: 1.3
+Requires at least: 3.3 
+Tested up to: 3.3
+Stable tag: 1.4
+Version: 1.4
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
 == Description ==
 The White Label CMS plugin is for developers who want to give their clients a more personalised and less confusing CMS.
 
-Important - For user wanting to use their existing logos, please select the Classic Header/Footer Height in the Branding section.
+Important - You must update your settings for the new version to work.
 
-For a video overview of the changes in 1.3 and how this affects WordPress 3.2 please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/ "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
+For a video overview of the changes in 1.4 and how this affects WordPress 3.3 please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmswordpressplugin "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
 
-You have the ability to choose which menus appear.  We have 3 CMS profiles of Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to user role of Editor and below.
+WordPress 3.3's new admin bar has really restricted the type of branding you can have for clients, which is why we have introduced the ability to brand the dashboard.
 
-For WordPress 3 users, you can give Editors access to the Menu and Widgets, but the switch theme option will not appear.
+You also the ability to choose which menus appear.  We have 3 CMS profiles of Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to user role of Editor and below.
 
-White Label CMS allows you to remove all the panels from the WordPress dashboard and insert your own panel, which you can use to write a personalised message to your client and link to the important elements in the CMS.
+You can also give Editors access to the Menu and Widgets, but the switch theme option will not appear.
+
+White Label CMS allows you to remove all the panels from the WordPress dashboard and insert your own panel, which you can use to write 2 personalised messages to your client and link to the important elements in the CMS.
 
 It also allows you to add custom logos to the header and footer as well as the all important login page, giving your client a better branded experience of using their new website.
 
@@ -40,27 +42,30 @@ No longer will you have to tell your clients to ignore the dashboard!
 4. Go to Settings->White Label CMS and use the menu system to change the default values.
 
 Please note:
-All custom images should be uploaded to the current themes image directory.
-The default filenames for the logo images are:
-Header Logo: custom-logo.gif
-Footer Logo: custom-logo.gif
-Custom Login Logo: custom-login-logo.gif
-
-In order to specify a with for the Header Logo or Footer Logo, please ensure you append px to the number.
+We have updated the way images now work. There are 3 options:
+You can either just add the filename, and this will look inside your theme/child theme's images folder for the file.
+You can put the full url of the image, if you want it to load from an external site
+You can use the WordPress uploader, but please make sure you click "insert image"
 
 == Upgrade Notice ==
-Updates for WordPress 3.2 . We provide a option to use your existing 32 pixel logo instead of a 16px pixel logo.
-New features
+Updates for WordPress 3.3
+You can now brand the dashboard as well as the admin bar.
 Bug Fixes
+!You must save the new settings!
 
 == Screenshots ==
 1. An example of a custom login
 2. An example of how your clients dashboard could look
 3. Customize which menus appear for editors
 4. Simple menu options
-5. New feature - Show Widgets and Menus for editors
+5. Customize the homepage
 
 == Changelog ==
+= 1.4 =
+Changes for WordPress 3.3
+Ability to brand the dashboard
+Lots of new changes and bug fixes
+
 = 1.3 =
 Changes for WordPress 3.2
 Restructure of menus
