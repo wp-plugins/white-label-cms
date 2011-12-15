@@ -379,7 +379,7 @@ case "radio":
 <?php 
 $counter = 1; 
 foreach ($value['options'] as $option) { ?>
-	<?php $checked=''; if( get_option($value['id']) && (get_option($value['id']) ==  $option)){ $checked = "checked=\"checked\""; }elseif( $option == $value['std']){ $checked = "checked=\"checked\""; } else { $checked = ""; } ?>
+	<?php $checked=''; if( get_option($value['id']) && (get_option($value['id']) ==  $option)){ $checked = "checked=\"checked\""; }elseif( (! get_option($value['id']) ) && $option == $value['std']){ $checked = "checked=\"checked\""; } else { $checked = ""; } ?>
 	<label class="radioyesno"> <?php  if ($counter == 1) { echo 'Yes '; } else { echo 'No '; } ?><input type="radio" name="<?php echo $value['id']; ?>" class="<?php echo $value['id']; ?>" value="<?php echo $option; ?>" <?php echo $checked; ?> /></label>
 <?php
 $counter++;
@@ -511,4 +511,48 @@ if (!get_option('wpm_o_user_id')):
 <?php
 endif;
 ?>
-</div> 
+</div>
+
+    <script type="text/javascript">
+jQuery(document).ready(function($) {
+		// Upload function goes here
+
+		jQuery('.upload_image_button').click(function() {
+		formField = jQuery(this).attr('rel');
+		tb_show('', 'media-upload.php?type=image&wlcms=true&TB_iframe=true');
+		return false;
+		});
+
+		window.send_to_editor = function(html) {
+		imgurl = jQuery('img',html).attr('src');
+		jQuery('#'+formField).val(imgurl);
+		tb_remove();
+		}
+
+
+
+	var formfield=null;
+	window.original_send_to_editor = window.send_to_editor;
+	window.send_to_editor = function(html){
+		if (formfield) {
+			var fileurl = jQuery('img',html).attr('src');
+			formfield.val(fileurl);
+			tb_remove();
+		} else {
+			window.original_send_to_editor(html);
+		}
+		formfield=null;
+	};
+
+	jQuery('.lu_upload_button').click(function() {
+ 		formfield = jQuery(this).parent().parent().find(".text_input");
+ 		tb_show('', 'media-upload.php?type=image&wlcms=true&TB_iframe=true');
+		jQuery('#TB_overlay,#TB_closeWindowButton').bind("click",function(){formfield=null;});
+		return false;
+	});
+	jQuery(document).keyup(function(e) {
+  		if (e.keyCode == 27) formfield=null;
+	});
+
+});
+</script>

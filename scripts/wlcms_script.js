@@ -78,7 +78,6 @@ jQuery(document).ready(function($){
 
 		var showHideWelcome;
 		var formField;
-		var showHideTemplate;
 		
 		showHideWelcome = jQuery('.wlcms_opts form #form-show-welcome input:radio:checked').val();
 		if(showHideWelcome == 0) {
@@ -91,22 +90,6 @@ jQuery(document).ready(function($){
 				jQuery('.video-h').hide();
 			} else {
 				jQuery('.video-h').show();
-			}
-		 });
-		 
-		 showHideTemplate = jQuery('.wlcms_opts form #form-show-template input:radio:checked').val();
-		if(showHideTemplate == 0) {
-			jQuery('#vAppearanceMenu').hide();
-		} else {
-			jQuery('#vAppearanceMenu').show();
-		}
-		
-		 jQuery('.wlcms_opts form #form-show-template input:radio').click(function() {
-		 	showHideTemplate = jQuery('.wlcms_opts form #form-show-template input:radio:checked').val();
-			if(showHideTemplate == 0) {
-				jQuery('#vAppearanceMenu').hide();
-			} else {
-				jQuery('#vAppearanceMenu').show();
 			}
 		 });
 		
@@ -236,44 +219,7 @@ jQuery('#wlcms_o_edit_role').change(function() {
 		});
 
 		
-		// Upload function goes here
-
-		jQuery('.upload_image_button').click(function() {
-		 formField = jQuery(this).attr('rel');
-		 tb_show('', 'media-upload.php?type=image&wlcms=true&TB_iframe=true');
-		 return false;
-		});
-
-		window.send_to_editor = function(html) {
-		 imgurl = jQuery('img',html).attr('src');
-		 jQuery('#'+formField).val(imgurl);
-		 tb_remove();
-		}
-		
-		
-		  	
-	var formfield=null;
-	window.original_send_to_editor = window.send_to_editor;
-	window.send_to_editor = function(html){
-		if (formfield) {
-			var fileurl = jQuery('img',html).attr('src');
-			formfield.val(fileurl);
-			tb_remove();
-		} else {
-			window.original_send_to_editor(html);
-		}
-		formfield=null;
-	};
- 
-	jQuery('.lu_upload_button').click(function() {
- 		formfield = jQuery(this).parent().parent().find(".text_input");
- 		tb_show('', 'media-upload.php?type=image&wlcms=true&TB_iframe=true');
-		jQuery('#TB_overlay,#TB_closeWindowButton').bind("click",function(){formfield=null;});
-		return false;
-	});
-	jQuery(document).keyup(function(e) {
-  		if (e.keyCode == 27) formfield=null;
-	});
+	
 
     	
 

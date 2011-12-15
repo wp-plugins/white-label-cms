@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4
+Version: 1.4.1
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4');
+define('WLCMS','1.4.1');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -39,10 +39,10 @@ add_action('admin_menu', 'wlcms_add_admin');
 add_action('admin_head', 'wlcms_custom_css');
 add_action('login_head', 'wlcms_custom_login_logo');
 add_action('admin_head', 'wlcms_hide_switch_theme');
-add_action('admin_menu','wlcms_remove_default_post_metaboxes');
+add_action('admin_menu', 'wlcms_remove_default_post_metaboxes');
 add_action('admin_init', 'wlcms_remove_admin_menus');
-add_action('admin_menu','wlcms_remove_default_page_metaboxes');
-add_action('admin_head','wlcms_dashboard_mod');
+add_action('admin_menu', 'wlcms_remove_default_page_metaboxes');
+add_action('admin_head', 'wlcms_dashboard_mod');
 add_action('admin_head-media-upload-popup', 'wlcms_iframe_mod');
 add_action('wp_before_admin_bar_render', 'wlcms_adminbar', 0);
 add_action('wp_dashboard_setup', 'wlcms_add_dashboard_widget_custom' );
@@ -242,49 +242,56 @@ function wlcms_adminbar()
 
     endif;
 
-   echo '<style type="text/css">';
+   $style = '<style type="text/css">';
 
-    if(get_option('wlcms_o_header_custom_logo') != "")
-    {
-        $background = get_option('wlcms_o_header_custom_logo');
-
-        if(!preg_match("@^https?://@", $background))
-        $background = get_bloginfo('stylesheet_directory').'/images/'.$background;
-
-        echo '#header-logo { background-image: url('.$background . ') !important; ';
-        $css_width = get_option('wlcms_o_header_custom_logo_width');
-
-        if ($css_width != '')
+        if(get_option('wlcms_o_header_custom_logo') != "")
         {
-                echo 'width: ' . get_option('wlcms_o_header_custom_logo_width') . 'px; ';
-        }
-        else
-        {
-            if (( version_compare( $wp_version, '3.2', '>=' ) ) && (!empty($customHFHeight)))
+            $background = get_option('wlcms_o_header_custom_logo');
+
+            if(!preg_match("@^https?://@", $background))
+            $background = get_bloginfo('stylesheet_directory').'/images/'.$background;
+
+            $style .= '#header-logo { background-image: url('.$background . ') !important; ';
+            $css_width = get_option('wlcms_o_header_custom_logo_width');
+
+            if ($css_width != '')
             {
-                    echo 'height: '.$customHFHeight.'px; ';
+                $style .= 'width: ' . get_option('wlcms_o_header_custom_logo_width') . 'px; ';
             }
+            else
+            {
+                if (( version_compare( $wp_version, '3.2', '>=' ) ) && (!empty($customHFHeight)))
+                {
+                    $style .= 'height: '.$customHFHeight.'px; ';
+                }
+            }
+            $style .= '} ';
         }
-        echo '} ';
-    }
 
-    if (( version_compare( $wp_version, '3.2', '>=' ) ) && (!empty($customHFHeight))) {
-            echo '  #wphead { height: '.$customHFHeight.'px; }
-                            #wphead h1 { font-size: 22px; padding: 10px 8px 5px; }
-                            #header-logo { height: 32px; }
-                            #user_info { padding-top: 8px }
-                            #user_info_arrow { margin-top: 8px; }
-                            #user_info_links { top: 8px; }
-                            #footer p { padding-top: 15px; }
-                            #wlcms-footer-container { padding-top: 10px; line-height: 30px;} '."\n";
-    }
-    if (( version_compare( $wp_version, '3.2', '<' ) ) && (empty($customHFHeight))) {
-            echo '#wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px; }';
-    }
-    if (get_option('wlcms_o_header_logo_link') == 1) {
-            echo '#site-heading { display: none; } ';
-    }
-    echo '</style>';
+        if (( version_compare( $wp_version, '3.2', '>=' ) ) && (!empty($customHFHeight))) {
+                $style .= '  #wphead { height: '.$customHFHeight.'px; }
+                                #wphead h1 { font-size: 22px; padding: 10px 8px 5px; }
+                                #header-logo { height: 32px; }
+                                #user_info { padding-top: 8px }
+                                #user_info_arrow { margin-top: 8px; }
+                                #user_info_links { top: 8px; }
+                                #footer p { padding-top: 15px; }
+                                #wlcms-footer-container { padding-top: 10px; line-height: 30px;} '."\n";
+        }
+
+        if (( version_compare( $wp_version, '3.2', '<' ) ) && (empty($customHFHeight))) {
+               $style .= '#wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px; }';
+        }
+
+        if (get_option('wlcms_o_header_logo_link') == 1) {
+                $style .= '#site-heading { display: none; } ';
+        }
+
+    $style .= '</style>';
+
+    echo $style;
+    
+
     if (get_option('wlcms_o_header_logo_link') == 1) {
             echo '<script type="text/javascript">';
             echo "jQuery(function($){ $('#header-logo').wrap('<a href=\"" . site_url() . "\" alt=\"" . get_bloginfo('name') . "\" title=\"" . get_bloginfo('name') . "\">'); });";
@@ -338,13 +345,13 @@ function wlcms_custom_login_logo()
             $login_custom_logo = get_bloginfo('stylesheet_directory').'/images/'.$login_custom_logo;
 
     echo '<style type="text/css">';
-    echo wp_specialchars_decode( stripslashes( get_option('wlcms_o_login_bg_css') ), 1, 0, 1 );
+    echo stripslashes( get_option('wlcms_o_login_bg_css') );
 
     if (get_option('wlcms_o_login_custom_logo')):
         echo ' .login h1 a { display:all; background: url('.$login_custom_logo . ') no-repeat bottom center !important; margin-bottom: 10px; } ';
 
         if(get_option('wlcms_o_loginbg_white') ):
-                echo ' body.login {background: #fff }';
+                echo ' body.login {background: #fff } ';
         endif;
 
         echo '</style> ';
@@ -359,13 +366,15 @@ function wlcms_custom_login_logo()
                 window.onload=loginalt;
         </script>';
 
-    elseif( get_option('wlcms_o_login_bg') ):
-        echo '<style type="text/css">';
-        echo wp_specialchars_decode( stripslashes( get_option('wlcms_o_login_bg') ), 1, 0, 1 );
+    elseif( get_option('wlcms_o_login_bg_css') ):
+        
+        echo  stripslashes( get_option('wlcms_o_login_bg_css') );
+        echo '</style> ';
+    else:
         echo '</style> ';
     endif;
 
-    if(get_option('wlcms_o_login_bg')):
+    if(get_option('wlcms_o_login_bg_css')):
         echo '<script type="text/javascript"> jQuery(document).ready(function(){ jQuery("#login").wrap("<div id=\'wlcms-login-wrapper\'></div>"); }); </script> ';
     endif;
 	
@@ -465,9 +474,12 @@ function wlcms_remove_admin_menus () {
 
     if (sizeof($exclude) > 0):
         if (!current_user_can('activate_plugins')):
-            foreach($menu as $mId=>$menuArray):
-                if(in_array( $menuArray[0] , $exclude )) unset($menu[$mId]);
-            endforeach;
+
+            if( isset($menu) && is_array($menu) ):
+                foreach($menu as $mId=>$menuArray):
+                    if(in_array( $menuArray[0] , $exclude )) unset($menu[$mId]);
+                endforeach;
+            endif;
         endif;
     endif;
 
@@ -697,7 +709,7 @@ function wlcms_admin()
 
 function wlcms_iframe_mod()
 {
-    if( (isset($_GET['wlcms']) ) ||  isset( $_GET["post_id"] ) && ( $_POST['post_id'] == '0' ) )
+    if( (isset($_GET['wlcms']) ) ||  isset( $_GET["post_id"] ) && ( $_GET['post_id'] == '0' ) )
     { ?>
     <style type="text/css">
         #media-upload-header #sidemenu li#tab-type_url,

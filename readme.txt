@@ -9,8 +9,8 @@ Author:  Video User Manuals
 Donate link: 
 Requires at least: 3.3 
 Tested up to: 3.3
-Stable tag: 1.4
-Version: 1.4
+Stable tag: 1.4.1
+Version: 1.4.1
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
@@ -49,9 +49,9 @@ You can use the WordPress uploader, but please make sure you click "insert image
 
 == Upgrade Notice ==
 Updates for WordPress 3.3
+Bug Fixes for WLCMS 1.4
 You can now brand the dashboard as well as the admin bar.
-Bug Fixes
-!You must save the new settings!
+!You must save the new settings if you are upgrading from 1.3!
 
 == Screenshots ==
 1. An example of a custom login
@@ -61,6 +61,9 @@ Bug Fixes
 5. Customize the homepage
 
 == Changelog ==
+= 1.4.1 =
+Bug Fixes for radio buttons, media uploader and login style
+
 = 1.4 =
 Changes for WordPress 3.3
 Ability to brand the dashboard
