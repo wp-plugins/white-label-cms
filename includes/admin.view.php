@@ -303,7 +303,22 @@ break;
 
 	<label id="<?php echo $value['id']; ?>" class="<?php echo (!empty($value['class'])?$value['class']:'');?>"><?php echo (isset($value['name']) ? $value['name'] : ''); ?></label>
 	
-<?php if(get_option($value['id'])){ $checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked'; }elseif ($value['std'] == '1' ) {$checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked';} else{ $checked = ""; $remChecked = '';} ?>
+<?php
+if(get_option($value['id']))
+    {  
+        $checked = "checked=\"checked\""; $remChecked = 'wlcms_remChecked';
+    }
+elseif ( ( ! get_option( 'wlcms_o_ver' ) ) && ($value['std'] == '1') )
+    {   
+        $checked = "checked=\"checked\"";
+        $remChecked = 'wlcms_remChecked';
+    }
+else
+    {
+        $checked = '';
+        $remChecked = '';
+    }
+?>
 <input type="checkbox" name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>" value="true" <?php echo $checked; ?> class="<?php echo $remChecked; ?>" />
 <?php echo (isset($value['label']) ? $value['label'] : '' ); ?>
 

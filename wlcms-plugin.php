@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4.1
+Version: 1.4.2
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4.1');
+define('WLCMS','1.4.2');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -308,12 +308,15 @@ function wlcms_remove_footer_admin() {
 
         echo '<div id="wlcms-footer-container">';
         if (get_option('wlcms_o_developer_url')) {
-        	if (get_option('wlcms_o_footer_custom_logo_width')) {
+
+                echo '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">';
+
+                if (get_option('wlcms_o_footer_custom_logo_width')) {
         	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
         	} else {
         		echo '<img ';
         	}
-           echo ' src="'.$footer_logo. '" id="wlcms-footer-logo"> <span> <a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' . get_option('wlcms_o_developer_name') . '</a> </span>';
+           echo ' src="'.$footer_logo. '" id="wlcms-footer-logo"> </a> <span> <a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' . get_option('wlcms_o_developer_name') . '</a> </span>';
         } else {
         	if (get_option('wlcms_o_footer_custom_logo_width')) {
         	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
@@ -671,7 +674,6 @@ function wlcmsUpdateCaps()
 
 function wlcms_add_init() 
 {
-
     global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
 
 if(! get_option('wlcms_o_welcome_title') )
@@ -686,10 +688,10 @@ if(! get_option('wlcms_o_welcome_title') )
 
     wp_enqueue_script('media-upload');
     wp_enqueue_script('thickbox');
-    wp_register_script('my-upload', plugins_url('white-label-cms/scripts/wlcms_script.js'), array('jquery','media-upload','thickbox'));
+    wp_register_script('my-upload', plugins_url('white-label-cms/scripts/wlcms_script.js'), array('jquery','media-upload','thickbox'), WLCMS );
     wp_enqueue_script('my-upload');
     wp_enqueue_style('thickbox');
-    wp_enqueue_style('white-label-cms', plugins_url('white-label-cms/css/wlcms_style.css'), false, '1.0', 'all');
+    wp_enqueue_style('white-label-cms', plugins_url('white-label-cms/css/wlcms_style.css' ), false, WLCMS, 'all');
 }
 function wlcms_nag()
 {
