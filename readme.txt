@@ -8,9 +8,9 @@ Author URI: http://www.videousermanuals.com
 Author:  Video User Manuals
 Donate link: 
 Requires at least: 3.3 
-Tested up to: 3.3
-Stable tag: 1.4.2
-Version: 1.4.2
+Tested up to: 3.3.1
+Stable tag: 1.4.3
+Version: 1.4.3
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
@@ -61,6 +61,9 @@ You can now brand the dashboard as well as the admin bar.
 5. Customize the homepage
 
 == Changelog ==
+= 1.4.3 =
+Minor Bug Fixes and some improvements on how forms are saved.
+
 = 1.4.2 =
 Bug Fixes, hopefully the last ones for this version
 

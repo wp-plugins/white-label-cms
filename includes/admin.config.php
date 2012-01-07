@@ -2,11 +2,7 @@
 
 $wlcmsShortName = "wlcms_o";
 
-if( get_option('wlcms_o_welcome_text') && (! get_option('wlcms_o_show_welcome') ) ):
-    $welcomePanelStd = '1';
-else:
-    $welcomePanelStd = '1';
-endif;
+
 
 global $wp_version, $submenu;
 
@@ -204,7 +200,7 @@ $wlcmsOptions2 = array(
             "id" => $wlcmsShortName."_show_welcome",
             "type" => "radio",
             "options" => array("1", "0"),
-            "std" => $welcomePanelStd ),
+            "std" => "0" ),
 
     array( "name" => "Welcome Panel Settings", "type" => "subsectionvars"),
 

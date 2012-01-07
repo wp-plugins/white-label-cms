@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4.2
+Version: 1.4.3
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4.2');
+define('WLCMS','1.4.3');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -394,17 +394,14 @@ function wlcms_custom_dashboard_help_new()
 
 function wlcms_add_dashboard_widget_custom() 
 {
+    if ( get_option('wlcms_o_show_welcome') ):
+        if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to')),  strtolower( wlcms_get_current_user_role() ) ) ):
+            wp_add_dashboard_widget('custom_help_widget', get_option('wlcms_o_welcome_title'), 'wlcms_custom_dashboard_help');
+        endif;
 
-    if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to')),  strtolower( wlcms_get_current_user_role() ) ) ):
-
-    wp_add_dashboard_widget('custom_help_widget', get_option('wlcms_o_welcome_title'), 'wlcms_custom_dashboard_help');
-
-    endif;
-
-    if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to1')),  strtolower( wlcms_get_current_user_role() ) ) ):
-
-    wp_add_dashboard_widget('my_dashboard_widget', get_option('wlcms_o_welcome_title1'), 'wlcms_custom_dashboard_help_new');
-
+        if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to1')),  strtolower( wlcms_get_current_user_role() ) ) ):
+            wp_add_dashboard_widget('my_dashboard_widget', get_option('wlcms_o_welcome_title1'), 'wlcms_custom_dashboard_help_new');
+        endif;
     endif;
 }
 
@@ -427,12 +424,14 @@ function wlcms_get_current_user_role() {
 }
 
 function wlcms_custom_editor_stylesheet($url)
-{ 
+{
+    
     if( get_option('wlcms_o_welcome_stylesheet')):
         $url = get_stylesheet_directory_uri() . '/' ;
         $url .= get_option('wlcms_o_welcome_stylesheet');
-        return $url;
     endif;
+
+    return $url;
 }
 
 function wlcms_hide_switch_theme()
@@ -462,7 +461,10 @@ function wlcms_remove_admin_menus () {
     global $menu, $submenu;
 
     $exclude[0] = '';
-    
+
+    if (get_option('wlcms_o_hide_posts'))
+        array_push($exclude,__('Posts','default'));
+
     if (get_option('wlcms_o_hide_comments'))
         array_push($exclude,__('Comments','default'));
     if (get_option('wlcms_o_hide_tools'))
@@ -471,16 +473,20 @@ function wlcms_remove_admin_menus () {
         array_push($exclude,__('Profile','default'));
 
 
- //  print_r($menu);die;
+   
 
     unset($exclude[0]);
 
+//    print_r($exclude);die;
+
     if (sizeof($exclude) > 0):
         if (!current_user_can('activate_plugins')):
-
             if( isset($menu) && is_array($menu) ):
                 foreach($menu as $mId=>$menuArray):
-                    if(in_array( $menuArray[0] , $exclude )) unset($menu[$mId]);
+                    $tmp = explode(' ',$menuArray[0]);
+                    if(in_array( $tmp[0] , $exclude )):
+                            unset($menu[$mId]);
+                    endif;
                 endforeach;
             endif;
         endif;
@@ -639,10 +645,10 @@ function wlcmsReset()
 function wlcmsUpdateCaps()
 {
     $config = array(
-        array(
+      /*  array(
             'key'   =>  'wlcms_o_hide_posts',
             'caps'  =>  array('edit_posts', 'manage_categories')
-        ),
+        ),*/
         array(
             'key'   =>  'wlcms_o_hide_pages',
             'caps'  =>  array('edit_pages')
