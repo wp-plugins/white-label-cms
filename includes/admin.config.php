@@ -543,18 +543,6 @@ array( "name" => "Hide Tools",
 $wlcms_show_appearance_legacy = '0';
 $wlcms_show_menus_legacy = '1';
 $wlcms_show_widgets_legacy = '1';
-
-
-if ((get_option('wlcms_o_show_appearance')) || ( get_option('wlcms_o_show_widgets')))
-{
-    $wlcms_show_appearance_legacy = '1';
-    if (get_option('wlcms_o_show_appearance')) {
-            $wlcms_show_menus_legacy = '0';
-    }
-    if (get_option('wlcms_o_show_widgets')) {
-            $wlcms_show_widgets_legacy = '0';
-    }
-}
   
 $wlcmsOptions3[] =  array( "name" => "The following change will display the Widgets or Menus or Background or Header option in Appearance to users with the role of <strong>Editor</strong>. Please refer to the help tab to understand the consequences of enabling this option. <br /><br />",
 	"type" => "message2") ;
@@ -564,9 +552,9 @@ $wlcmsOptions3[] = array( 	"name" => "Access To Appearance Menu",
 		"id" => $wlcmsShortName."_editor_template_access",
 		"type" => "radio",
 		"options" => array("1", "0"),
-		"std" => $wlcms_show_appearance_legacy );
+		"std" => '0' );
  
-$wlcmsOptions3[] = array( "name" => "Appearance Menu", "type" => "subsectionvars");
+$wlcmsOptions3[] = array( "name" => "The Appearance Menu", "type" => "subsectionvars");
 
 foreach($submenu['themes.php'] as $optId=> $optArray) // Build Dynamically the sub options for Appearance tab
 {

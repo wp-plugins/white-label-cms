@@ -1,6 +1,6 @@
 === White Label CMS ===
 
-Contributors: B.Porteous, T.Dean, M.Rupisan
+Contributors: VideoUserManuals
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Tags: cms, custom, admin, branding, dashboard, administration, plugin, login, client, menu, navigation, appearance, menus, widgets
@@ -9,8 +9,8 @@ Author:  Video User Manuals
 Donate link: 
 Requires at least: 3.3 
 Tested up to: 3.3.1
-Stable tag: 1.4.3
-Version: 1.4.3
+Stable tag: 1.4.4
+Version: 1.4.4
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
@@ -49,7 +49,7 @@ You can use the WordPress uploader, but please make sure you click "insert image
 
 == Upgrade Notice ==
 Updates for WordPress 3.3
-More Bug Fixes for WLCMS 1.4
+More Bug Fixes for WLCMS 1.4 and improved support for other languages.
 You can now brand the dashboard as well as the admin bar.
 !You must save the new settings if you are upgrading from 1.3!
 
@@ -61,6 +61,10 @@ You can now brand the dashboard as well as the admin bar.
 5. Customize the homepage
 
 == Changelog ==
+
+= 1.4.4 =
+Better support for other languages, deactivating the plugin does not remove options, only deleting it will run the uninstall script. Other minor fixes.
+
 = 1.4.3 =
 Minor Bug Fixes and some improvements on how forms are saved.
 
