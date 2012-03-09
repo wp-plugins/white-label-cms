@@ -481,6 +481,8 @@ function wlcms_remove_admin_menus () {
 
     if (get_option('wlcms_o_hide_posts'))
         array_push($exclude,__('Posts','default'));
+    if (get_option('wlcms_o_hide_media'))
+        array_push($exclude,__('Media','default'));
     if (get_option('wlcms_o_hide_comments'))
         array_push($exclude,__('Comments','default'));
     if (get_option('wlcms_o_hide_tools'))
@@ -681,6 +683,10 @@ function wlcmsUpdateCaps()
 
     foreach($config as $opts):
         if(isset( $_POST[ $opts['key'] ] )):
+
+            if( $opts['key'] == 'wlcms_o_hide_media')
+                continue;
+
             $role = get_role( 'editor' );
             foreach($opts['caps'] as $cap):
                 $role->remove_cap( $cap );
