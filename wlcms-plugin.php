@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4.3
+Version: 1.4.4
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4.3');
+define('WLCMS','1.4.4');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -27,9 +27,7 @@ if(!function_exists('wp_get_current_user')) {
     include(ABSPATH . "wp-includes/pluggable.php"); 
 }
  
-
 include('includes/conditionals.php');
-include('includes/plugin_deactivate.php');
 
 add_action('init', 'wlcms_check_for_login');
 add_action('admin_notices','wlcms_nag');
@@ -45,22 +43,21 @@ add_action('admin_menu', 'wlcms_remove_default_page_metaboxes');
 add_action('admin_head', 'wlcms_dashboard_mod');
 add_action('admin_head-media-upload-popup', 'wlcms_iframe_mod');
 add_action('wp_before_admin_bar_render', 'wlcms_adminbar', 0);
+add_action('wp_before_admin_bar_render', 'wlcms_admin_bar', 0);
 add_action('wp_dashboard_setup', 'wlcms_add_dashboard_widget_custom' );
 
 add_filter( 'admin_title', 'wlcms_admin_title', 10, 2);
 add_filter( 'mce_css', 'wlcms_custom_editor_stylesheet' );
 
-register_deactivation_hook( __FILE__, 'wlcms_plugin_deactivate' );
-
 function wlcms_check_for_login()
 {
-	if( get_option('wlcms_o_enable_login_redirect') ):
-		$segments = explode('/' ,  $_SERVER['REQUEST_URI'] );
-		if ( $segments[ (count($segments) - 1) ] == 'login' ):
-			wp_redirect( get_bloginfo('url') . '/wp-login.php' );
-			exit;
-		endif;
-	endif;
+    if( get_option('wlcms_o_enable_login_redirect') ):
+        $segments = explode('/' ,  $_SERVER['REQUEST_URI'] );
+        if ( $segments[ (count($segments) - 1) ] == 'login' ):
+                wp_redirect( get_bloginfo('url') . '/wp-login.php' );
+                exit;
+        endif;
+    endif;
 }
 
 
@@ -420,7 +417,7 @@ function wlcms_get_current_user_role() {
     $current_user = wp_get_current_user();
     $roles = $current_user->roles;
     $role = array_shift($roles);
-    return isset($wp_roles->role_names[$role]) ? translate_user_role($wp_roles->role_names[$role] ) : false;
+    return isset($wp_roles->role_names[$role]) ? $wp_roles->role_names[$role] : false;
 }
 
 function wlcms_custom_editor_stylesheet($url)
@@ -457,14 +454,33 @@ function wlcms_admin_title($admin_title)
     endif;
 }
 
+function wlcms_admin_bar()
+{
+    // Show all to admin
+    if (current_user_can('activate_plugins'))
+        return;
+
+    global $wp_admin_bar;
+
+    if (get_option('wlcms_o_hide_posts'))
+        $wp_admin_bar->remove_menu('new-post', 'new-content');
+    if (get_option('wlcms_o_hide_comments'))
+        $wp_admin_bar->remove_menu('comments');
+    if (get_option('wlcms_o_hide_media'))
+        $wp_admin_bar->remove_menu('media');
+
+    $wp_admin_bar->remove_menu('appearance');
+
+}
+
 function wlcms_remove_admin_menus () {
+    
     global $menu, $submenu;
 
     $exclude[0] = '';
 
     if (get_option('wlcms_o_hide_posts'))
         array_push($exclude,__('Posts','default'));
-
     if (get_option('wlcms_o_hide_comments'))
         array_push($exclude,__('Comments','default'));
     if (get_option('wlcms_o_hide_tools'))
@@ -596,13 +612,12 @@ global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
         }
     }
 }
-
+ 
 function wlcmsSave()
 {
     include('includes/admin.config.php');
 
     update_option('wlcms_o_ver', WLCMS);
-    
     foreach ($wlcmsOptions as $value):
         if( isset( $value['id'] ) && isset( $_REQUEST[ $value['id'] ] ) ):
             update_option( $value['id'], $_REQUEST[ $value['id'] ]  );
@@ -618,10 +633,11 @@ function wlcmsSave()
         $role = get_role( 'editor' );
         $role->add_cap( 'edit_theme_options' );
     }
-    else
+    elseif($_REQUEST['wlcms_o_editor_template_access'] == "0")
     {
         $role = get_role( 'editor' );
         $role->remove_cap( 'switch_themes' ); // Legacy
+        $role->remove_cap( 'edit_themes' ); // Legacy
         $role->remove_cap( 'edit_theme_options' );
     }
 
@@ -677,6 +693,8 @@ function wlcmsUpdateCaps()
         endif;
     endforeach;
 }
+
+
 
 function wlcms_add_init() 
 {

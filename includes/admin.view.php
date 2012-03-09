@@ -388,13 +388,14 @@ break;
 case "radio":
 ?>
 
-<div class="wlcms_input wlcms_radio" <?php if($value['id'] == 'wlcms_o_show_welcome') { echo ' id="form-show-welcome" '; }?> <?php if($value['id'] == 'wlcms_o_editor_template_access') { echo ' id="form-show-template" '; }?>>
+<div class="wlcms_input wlcms_radio" <?php if($value['id'] == 'wlcms_o_show_welcome') { echo ' id="form-show-welcome" '; }?>
+<?php if($value['id'] == 'wlcms_o_editor_template_access') { echo ' id="form-show-template" '; }?>>
 	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
 
 <?php 
 $counter = 1; 
 foreach ($value['options'] as $option) { ?>
-	<?php $checked=''; if( get_option($value['id']) && (get_option($value['id']) ==  $option)){ $checked = "checked=\"checked\""; }elseif( (! get_option($value['id']) ) && $option == $value['std']){ $checked = "checked=\"checked\""; } else { $checked = ""; } ?>
+	<?php $checked=''; if( ( get_option($value['id']) || get_option($value['id']) == '0' ) && (get_option($value['id']) ==  $option)){ $checked = "checked=\"checked\""; }elseif( (! get_option($value['id']) ) && $option == $value['std']){ $checked = "checked=\"checked\""; } else { $checked = ""; } ?>
 	<label class="radioyesno"> <?php  if ($counter == 1) { echo 'Yes '; } else { echo 'No '; } ?><input type="radio" name="<?php echo $value['id']; ?>" class="<?php echo $value['id']; ?>" value="<?php echo $option; ?>" <?php echo $checked; ?> /></label>
 <?php
 $counter++;

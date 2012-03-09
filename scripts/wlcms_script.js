@@ -77,21 +77,38 @@ jQuery(document).ready(function($){
 		});
 
 		var showHideWelcome;
+		var showHideAppearance;
 		var formField;
 		
+		// Showhide Welcome
 		showHideWelcome = jQuery('.wlcms_opts form #form-show-welcome input:radio:checked').val();
 		if(showHideWelcome == 0) {
-			jQuery('.video-h').hide();
+			jQuery('#vWelcomePanelSettings').hide();
 		}
 		
-		 jQuery('.wlcms_opts form #form-show-welcome input:radio').click(function() {
-		 	showHideWelcome = jQuery('.wlcms_opts form #form-show-welcome input:radio:checked').val();
+		jQuery('.wlcms_opts form #form-show-welcome input:radio').click(function() {
+			showHideWelcome = jQuery('.wlcms_opts form #form-show-welcome input:radio:checked').val();
 			if(showHideWelcome == 0) {
-				jQuery('.video-h').hide();
+				jQuery('#vWelcomePanelSettings').hide();
 			} else {
-				jQuery('.video-h').show();
+				jQuery('#vWelcomePanelSettings').show();
 			}
-		 });
+		});
+		
+		// Showhide Appearance Menu
+		showHideAppearance = jQuery('.wlcms_opts form #form-show-template input:radio:checked').val();
+		if(showHideAppearance == 0) {
+			jQuery('#vTheAppearanceMenu').hide();
+		}
+		
+		jQuery('.wlcms_opts form #form-show-template input:radio').click(function() {
+			showHideWelcome = jQuery('.wlcms_opts form #form-show-template input:radio:checked').val();
+			if(showHideWelcome == 0) {
+				jQuery('#vTheAppearanceMenu').hide();
+			} else {
+				jQuery('#vTheAppearanceMenu').show();
+			}
+		});
 		
   
 		jQuery('.wlcms_section h3').click(function(){		
