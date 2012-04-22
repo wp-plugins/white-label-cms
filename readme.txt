@@ -9,8 +9,8 @@ Author:  Video User Manuals
 Donate link: 
 Requires at least: 3.3 
 Tested up to: 3.3.1
-Stable tag: 1.4.5
-Version: 1.4.5
+Stable tag: 1.4.6
+Version: 1.4.6
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
@@ -61,6 +61,9 @@ You can now brand the dashboard as well as the admin bar.
 5. Customize the homepage
 
 == Changelog ==
+
+= 1.4.6 =
+Patch submitted by Chris @ iThemes. Better support for users of iThemes.
 
 = 1.4.5 =
 Changed how media menu is hidden to allow both hiding the menu and still able to add content. (Small bug)

@@ -479,7 +479,7 @@ $i++;
 ?>
 
 <div class="wlcms_section">
-<div class="wlcms_title"><h3><img src="<?php bloginfo('wpurl')?>/wp-content/plugins/white-label-cms/images/trans.png" class="inactive" alt=""><?php echo $value['name']; ?></h3><span class="submit"><input name="save<?php echo $i; ?>" type="submit" value="Save changes" />
+<div class="wlcms_title"><h3><img src="<?php echo plugins_url('images/trans.png', dirname(__FILE__)); ?>" class="inactive" alt=""><?php echo $value['name']; ?></h3><span class="submit"><input name="save<?php echo $i; ?>" type="submit" value="Save changes" />
 </span><div class="clearfix"></div></div>
 <div class="wlcms_options" style="display: none;">
 
@@ -523,7 +523,7 @@ if (!get_option('wpm_o_user_id')):
 ?>
  <p>This plugin is brought to you by the: <a href="http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmbrought">WordPress User Manual Plugin</a> from <a href="http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmscom">videousermanuals.com</a>.</p>
 
-<a href="http://www.videousermanuals.com/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmsad"> <img src="<?php bloginfo('wpurl')?>/wp-content/plugins/white-label-cms/images/wlcms-plugin-advert.jpg"></a>
+<a href="http://www.videousermanuals.com/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmsad"> <img src="<?php echo plugins_url('images/wlcms-plugin-advert.jpg', dirname(__FILE__)); ?>"></a>
 <?php
 endif;
 ?>

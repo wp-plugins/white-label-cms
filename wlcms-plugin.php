@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4.5
+Version: 1.4.6
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4.5');
+define('WLCMS','1.4.6');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -65,7 +65,7 @@ function wlcms_dashboard_mod()
 {
     global $current_screen;
 
-    if( ($current_screen->id == 'dashboard' ) ):
+    if( isset($current_screen) && ($current_screen->id == 'dashboard' ) ):
 
         if( get_option('wlcms_o_dashboard_override') || get_option('wlcms_o_dashboard_override') == '' ) :
 
@@ -111,7 +111,8 @@ function wlcms_dashboard_mod()
 // set admin screen
 function wlcms_add_menu() 
 {
-    add_options_page('White Label CMS','White Label CMS','manage_options','wlcms-plugin.php','wlcms_admin');
+    $hook_name = add_options_page('White Label CMS','White Label CMS','manage_options','wlcms-plugin.php','wlcms_admin');
+    add_action( "admin_print_scripts-$hook_name", 'wlcms_add_admin_scripts' );
 }
 
 function wlcmsUserCompare($needsToBe,$current)
@@ -716,12 +717,11 @@ if(! get_option('wlcms_o_welcome_title') )
         endforeach;
  }
 
-    wp_enqueue_script('media-upload');
-    wp_enqueue_script('thickbox');
-    wp_register_script('my-upload', plugins_url('white-label-cms/scripts/wlcms_script.js'), array('jquery','media-upload','thickbox'), WLCMS );
-    wp_enqueue_script('my-upload');
+}
+function wlcms_add_admin_scripts() {
+    wp_enqueue_script('wlcms-script', plugins_url('scripts/wlcms_script.js', __FILE__), array('media-upload'), WLCMS);
     wp_enqueue_style('thickbox');
-    wp_enqueue_style('white-label-cms', plugins_url('white-label-cms/css/wlcms_style.css' ), false, WLCMS, 'all');
+    wp_enqueue_style('wlcms-style', plugins_url('css/wlcms_style.css', __FILE__), false, WLCMS);
 }
 function wlcms_nag()
 {
