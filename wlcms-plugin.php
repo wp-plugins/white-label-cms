@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4.6
+Version: 1.4.7
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4.6');
+define('WLCMS','1.4.7');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -349,7 +349,7 @@ function wlcms_custom_login_logo()
     echo stripslashes( get_option('wlcms_o_login_bg_css') );
 
     if (get_option('wlcms_o_login_custom_logo')):
-        echo ' .login h1 a { display:all; background: url('.$login_custom_logo . ') no-repeat bottom center !important; margin-bottom: 10px; } ';
+        echo ' .login h1 a { display:all; background: url('.$login_custom_logo . ') no-repeat bottom center !important; margin-bottom: 10px; background-size: 300px 80px  } ';
 
         if(get_option('wlcms_o_loginbg_white') ):
                 echo ' body.login {background: #fff } ';
@@ -690,12 +690,20 @@ function wlcmsUpdateCaps()
 
             $role = get_role( 'editor' );
             foreach($opts['caps'] as $cap):
-                $role->remove_cap( $cap );
+                if(is_object($role) && method_exists($role,'add_cap'))
+                {
+                    $role->remove_cap( $cap );
+                }
+
             endforeach;
         else:
             $role = get_role( 'editor' );
             foreach($opts['caps'] as $cap):
-                $role->add_cap( $cap );
+                if(is_object($role) && method_exists($role,'add_cap'))
+                {
+                    $role->add_cap( $cap );
+                }
+                
             endforeach;
         endif;
     endforeach;
