@@ -3,12 +3,12 @@
 Plugin Name: White Label CMS
 Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Description:  A plugin that allows you to brand wordpress CMS as your own
-Version: 1.4.7
+Version: 1.5
 Author: www.videousermanuals.com
 Author URI: http://www.videousermanuals.com
 */
 
-define('WLCMS','1.4.7');
+define('WLCMS','1.5');
 
 if ( ! defined('ABSPATH') ) {
         die('Please do not load this file directly.');
@@ -30,7 +30,6 @@ if(!function_exists('wp_get_current_user')) {
 include('includes/conditionals.php');
 
 add_action('init', 'wlcms_check_for_login');
-add_action('admin_notices','wlcms_nag');
 add_action('admin_menu', 'wlcms_add_menu');
 add_action('admin_init', 'wlcms_add_init');
 add_action('admin_menu', 'wlcms_add_admin'); 
@@ -314,7 +313,7 @@ function wlcms_remove_footer_admin() {
         	} else {
         		echo '<img ';
         	}
-           echo ' src="'.$footer_logo. '" id="wlcms-footer-logo"> </a> <span> <a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' . get_option('wlcms_o_developer_name') . '</a> </span>';
+           echo ' src="'.$footer_logo. '" id="wlcms-footer-logo"> </a> <span> <a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' . stripslashes(get_option('wlcms_o_developer_name')) . '</a> </span>';
         } else {
         	if (get_option('wlcms_o_footer_custom_logo_width')) {
         	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
@@ -330,7 +329,7 @@ function wlcms_developer_link()
 {
     echo '<div id="wlcms-footer-container">';
     echo ( get_option('wlcms_o_developer_url') ? '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' : '' );
-    echo get_option('wlcms_o_developer_name');
+    echo stripslashes(get_option('wlcms_o_developer_name'));
     echo ( get_option('wlcms_o_developer_url') ? '</a>' : '' );
     echo '</div>';
 }
@@ -340,6 +339,7 @@ function wlcms_developer_link()
 function wlcms_custom_login_logo()
 {
     wp_print_scripts( array( 'jquery' ) );
+
     $login_custom_logo = get_option('wlcms_o_login_custom_logo');
 
     if(!preg_match("@^https?://@", $login_custom_logo))
@@ -349,7 +349,7 @@ function wlcms_custom_login_logo()
     echo stripslashes( get_option('wlcms_o_login_bg_css') );
 
     if (get_option('wlcms_o_login_custom_logo')):
-        echo ' .login h1 a { display:all; background: url('.$login_custom_logo . ') no-repeat bottom center !important; margin-bottom: 10px; background-size: 300px 80px  } ';
+        echo ' .login h1 a { display:all; background: url('.$login_custom_logo . ') no-repeat bottom center !important; margin-bottom: 10px; background-size: auto; } ';
 
         if(get_option('wlcms_o_loginbg_white') ):
                 echo ' body.login {background: #fff } ';
@@ -358,13 +358,11 @@ function wlcms_custom_login_logo()
         echo '</style> ';
 
         echo '<script type="text/javascript">
-                function loginalt() {
-                        var changeLink = document.getElementById(\'login\').innerHTML;
-                        changeLink = changeLink.replace("http://wordpress.org/", "' . site_url() . '");
-                        changeLink = changeLink.replace("Powered by WordPress", "' . get_bloginfo('name') . '");
-                        document.getElementById(\'login\').innerHTML = changeLink;
-                }
-                window.onload=loginalt;
+                jQuery(document).ready(function()
+               {
+                    jQuery(\'#login h1 a\').attr(\'title\',\'' . get_bloginfo('name') . '\');
+                    jQuery(\'#login h1 a\').attr(\'href\',\'' . get_bloginfo('url') . '\');
+               });
         </script>';
 
     elseif( get_option('wlcms_o_login_bg_css') ):
@@ -392,6 +390,14 @@ function wlcms_custom_dashboard_help_new()
 
 function wlcms_add_dashboard_widget_custom() 
 {
+    if ( get_option('wlcms_o_show_rss_widget') ):
+        $img = ( get_option('wlcms_o_rss_logo') ? get_option('wlcms_o_rss_logo') : '' );
+        if($img)
+            $img = '<img src="'.$img.'" height="16" width="16" alt="Logo" style="padding-right:5px;vertical-align:bottom;"/>';
+        
+        wp_add_dashboard_widget('wlcms_rss_box', $img . get_option('wlcms_o_rss_title'), 'wlcms_rss_box');
+    endif;
+
     if ( get_option('wlcms_o_show_welcome') ):
         if ( wlcmsUserCompare( strtolower(get_option('wlcms_o_welcome_visible_to')),  strtolower( wlcms_get_current_user_role() ) ) ):
             wp_add_dashboard_widget('custom_help_widget', get_option('wlcms_o_welcome_title'), 'wlcms_custom_dashboard_help');
@@ -406,6 +412,48 @@ function wlcms_add_dashboard_widget_custom()
 function remove_footer_version()
 {
     return '';
+}
+
+function wlcms_rss_box()
+{
+    if(!get_option('wlcms_o_rss_value'))
+        return;
+    
+    include_once(ABSPATH . WPINC . '/feed.php');
+    $num_items = get_option('wlcms_o_rss_num_items');
+    $rss = fetch_feed( get_option('wlcms_o_rss_value') );
+
+    if (!is_wp_error( $rss ) ) : // Checks that the object is created correctly
+        $maxitems = $rss->get_item_quantity($num_items);
+        $rss_items = $rss->get_items(0, $maxitems);
+    endif;
+
+    if( get_option('wlcms_o_rss_intro_html') ):
+        echo wpautop ( stripslashes( get_option('wlcms_o_rss_intro_html') ) );
+    endif; 
+?>
+
+<ul>
+    <?php if ($maxitems == 0) echo '<li>No items.</li>';
+    else
+    // Loop through each feed item and display each item as a hyperlink.
+
+    foreach ( $rss_items as $item ) : ?>
+    <li>
+        <strong> <a href='<?php echo esc_url( $item->get_permalink() ); ?>'
+        title='<?php echo 'Posted '.$item->get_date('j F Y | g:i a'); ?>' target='_blank'>
+        <?php echo esc_html( $item->get_title() ); ?></a> </strong> <br />
+
+        <?php if(get_option('wlcms_o_rss_show_intro') == 'yes'): 
+            echo $item->get_content();
+        endif; ?>
+        
+    </li>
+    <?php endforeach; ?>
+</ul>
+
+<?php
+   
 }
 
 function wlcms_hide_wp_version()
@@ -601,7 +649,7 @@ function wlcms_remove_default_post_metaboxes()
 function wlcms_add_admin() 
 {
 	
-global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
+    global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
 
     if ( isset($_GET['page']) && $_GET['page'] == 'wlcms-plugin.php')
      {
@@ -609,13 +657,108 @@ global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
         {
             add_action('admin_init', 'wlcmsSave');
         }
-        else if( isset($_REQUEST['action']) && 'reset' == $_REQUEST['action'] )
+        elseif( isset($_REQUEST['action']) && 'reset' == $_REQUEST['action'] )
         {
             add_action('admin_init', 'wlcmsReset');
         }
+        elseif( isset($_REQUEST['action']) && 'export' == $_REQUEST['action'] )
+        {
+            add_action('admin_init', 'wlcmsExport');
+        }
+        elseif( isset($_REQUEST['action']) && 'import' == $_REQUEST['action'] )
+        {
+            add_action('admin_init', 'wlcmsImport');
+        }
     }
 }
- 
+
+function wlcmsImport()
+{
+    if ($_FILES['wlcms_import']['error'] == UPLOAD_ERR_OK
+            && is_uploaded_file($_FILES['wlcms_import']['tmp_name'])):
+
+        $import = file_get_contents($_FILES['wlcms_import']['tmp_name']);
+        $import = unserialize($import);
+
+        if( ! is_array($import) )
+        {   
+            // Not an array some how? Rather than pressing on, just return.
+            header("Location: admin.php?page=wlcms-plugin.php&import=false&error=noArray");
+        }
+
+        // Reset all WLCMS settings;
+        wlcmsReset(true);
+
+        $site_url = get_bloginfo('url');
+
+        foreach($import as $name=>$value):
+            $val = str_replace( '{SITEURL}', $site_url, $value );
+            add_option($name, $val); // Add in new option
+        endforeach;
+
+        header("Location: admin.php?page=wlcms-plugin.php&import=true");
+        exit;
+
+    endif;
+
+    header("Location: admin.php?page=wlcms-plugin.php&import=false");
+    die;
+}
+
+function wlcmsExport()
+{
+    global $wpdb;
+    $export=array();
+    $site_url = get_bloginfo('url');
+    
+    // Get all WLCMS vals from options table
+    $results = $wpdb->get_results("select * from $wpdb->options where option_name like 'wlcms_o_%'");
+
+    // Are there any options to grab?
+    if($results):
+        // Loop through results and prep array.
+        foreach($results as $result):
+
+            if($result->option_value=='') continue; // Ignore empty values
+
+            // Does the blog URL exist in this option value?
+            if ( strpos( $result->option_value ,$site_url) !== false ):
+
+                // Do we want to keep the full URL?
+                if( $_GET['wlcms_export_imgs'] == 'yes' ):
+                    $export[$result->option_name] = $result->option_value;
+
+                // If we do a partial - that means we str replace the SITEURL.
+                elseif( $_GET['wlcms_export_imgs'] == 'partial' ):
+                    $val = str_replace( $site_url, '{SITEURL}', $result->option_value );
+                    $export[$result->option_name] = $val;
+
+                endif;
+
+                // Otherwise they will have selected no, in which case, we dont
+                // add them to the $export array.
+
+            else:
+            
+                // Add non-url matched items to our $export array
+                $export[$result->option_name] = $result->option_value;
+
+            endif;
+           
+        endforeach; 
+        
+    endif;
+    
+    $export=serialize($export);
+
+    header("Content-Disposition: attachment; filename=\"wlcms-backup-" . date('Y-m-d') . ".txt\"");
+    header("Content-Type: application/force-download");
+    header("Content-Length: " . strlen($export));
+    header("Connection: close");
+    echo $export;
+    exit;
+}
+
 function wlcmsSave()
 {
     include('includes/admin.config.php');
@@ -648,7 +791,7 @@ function wlcmsSave()
     die;
 }
 
-function wlcmsReset()
+function wlcmsReset($return=false)
 {
     include('includes/admin.config.php');
     foreach ($wlcmsOptions as $value):
@@ -656,6 +799,8 @@ function wlcmsReset()
             delete_option( $value['id'] );
         endif;
     endforeach;
+
+    if($return) return; 
 
     header("Location: admin.php?page=wlcms-plugin.php&reset=true");
     die;
@@ -731,10 +876,6 @@ function wlcms_add_admin_scripts() {
     wp_enqueue_style('thickbox');
     wp_enqueue_style('wlcms-style', plugins_url('css/wlcms_style.css', __FILE__), false, WLCMS);
 }
-function wlcms_nag()
-{
-    if ( ! get_option('wlcms_o_ver') ) echo '<div id="message" class="updated fade"><p><strong>Please update your <a href="admin.php?page=wlcms-plugin.php">White Label CMS Settings</a></strong></p></div>';
-}
 function wlcms_admin() 
 {
     global $menu, $submenu;
@@ -743,6 +884,7 @@ function wlcms_admin()
 
     if ( isset($_REQUEST['saved']) && $_REQUEST['saved'] ) echo '<div id="message" class="updated fade"><p><strong> Settings saved.</strong></p></div>';
     if ( isset($_REQUEST['reset']) && $_REQUEST['reset'] ) echo '<div id="message" class="updated fade"><p><strong> Settings reset.</strong></p></div>';
+    if ( isset($_REQUEST['import']) && $_REQUEST['import'] == 'true' ) echo '<div id="message" class="updated fade"><p><strong> Your Import has been completed.</strong></p></div>';
 
     require('includes/admin.view.php');
 }

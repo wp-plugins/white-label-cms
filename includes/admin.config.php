@@ -246,6 +246,59 @@ array( 	"name" => "Description",
 		"id" => $wlcmsShortName."_welcome_text1",
 		"type" => "textarea",
 		"std" => ''),
+
+	array( "type" => "closeonce"),
+		
+    array(
+            "name" => "Add an RSS Dashboard panel?",
+            "desc" => "This will appear on the dashboard. If you want your client to be kept up to date with what your are doing in the your business, set up your RSS feed.",
+            "id" => $wlcmsShortName."_show_rss_widget",
+            "type" => "radio",
+            "options" => array("1", "0"),
+            "std" => "0" ),
+
+    array( "name" => "RSS Settings", "type" => "subsectionvars"),
+    
+    array(
+            "name" => "RSS Title",
+            "desc" => "The title of your RSS dashboard panel.",
+            "id" => $wlcmsShortName."_rss_title",
+            "type" => "text",
+            "std" => ''),
+    array(
+            "name"  => "Add Your Logo (16px x 16px)",
+            "desc"  => "Adds a 16px logo before the title",
+            "id"    => $wlcmsShortName."_rss_logo",
+            "class" => 'upload_image_button',
+            "type"  => "file",
+            "std"   => ''),
+    array(
+            "name" => "RSS Feed",
+            "desc" => "The RSS feed address. For example feed://www.vitaminseo.com.au/feed/",
+            "id" => $wlcmsShortName."_rss_value",
+            "type" => "text",
+            "std" => ''),
+    array(
+            "name" => "Number Items",
+            "desc" => "Number of RSS items to show",
+            "id" => $wlcmsShortName."_rss_num_items",
+            "type" => "selectbox",
+            "options"=> array(1=>1,2=>2,3=>3,4=>4,5=>5,6=>6,7=>7,8=>8,9=>9,10=>10),
+            "std" => 2),
+    array(
+            "name" => "Show Post Contents",
+            "desc" => "Show the content of the RSS item. This will display what is in your RSS feed, if this is not what you want, please modify your RSS feed.",
+            "id" => $wlcmsShortName."_rss_show_intro",
+            "type" => "selectbox",
+            "options"=> array('yes'=>'Yes','no'=>'No'),
+            "std" => 'yes'),
+    array(
+            "name"  => "RSS Intro",
+            "desc"  => "If you would like to have some text above the RSS items explaining it. Please add the text in html format here.",
+            "id"    => $wlcmsShortName."_rss_intro_html",
+            "type"  => "textarea",
+            "std"   => ''),
+		
 	
 array( "type" => "closeonce"),
 
@@ -575,9 +628,12 @@ foreach($submenu['themes.php'] as $optId=> $optArray) // Build Dynamically the s
  
 
 $wlcmsOptions3[] = array( "type" => "divclose" );
-$wlcmsOptions3[] = array( "type" => "divclose" );
+$wlcmsOptions3[] = array( "type" => "close" );
+
+
 
 // To improve the config builder.
+// $wlcmsOptions3 = array_merge($wlcmsOptions3);
 $wlcmsOptions = array_merge( $wlcmsOptions, $wlcmsOptions2, $wlcmsOptions3 );
  
 ?>

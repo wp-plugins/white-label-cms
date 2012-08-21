@@ -9,29 +9,27 @@ Author:  Video User Manuals
 Donate link: 
 Requires at least: 3.3 
 Tested up to: 3.4.1
-Stable tag: 1.4.7
-Version: 1.4.7
+Stable tag: 1.5
+Version: 1.5
 
-Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
+Allows complete customization of dashboard panels and logos, removal of menus, giving editors access to widgets and menus plus lots more. Import/export your settings and include an RSS panel on the dashboard to feed your clients the latest posts from your blog to keep you top of mind whenever they login to their dashboard.
 
 == Description ==
-The White Label CMS plugin is for developers who want to give their clients a more personalised and less confusing CMS.
+The White Label CMS plugin is for developers who want to give their clients a more personalised and less confusing content management system
 
-Important - You must update your settings for the new version to work.
+For a video overview of the changes in 1.5 and how this affects WordPress 3.4 please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmswordpressplugin "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
 
-For a video overview of the changes in 1.4 and how this affects WordPress 3.3 please visit the [White Label CMS](http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmswordpressplugin "White Label CMS") home hosted on the [WordPress Manual Plugin](http://www.videousermanuals.com/ "WordPress Manual Plugin") website.
+WordPress 3.3's new admin bar has restricted the type of branding you can have for clients, which is why we have introduced the ability to brand the dashboard.
 
-WordPress 3.3's new admin bar has really restricted the type of branding you can have for clients, which is why we have introduced the ability to brand the dashboard.
-
-You also the ability to choose which menus appear.  We have 3 CMS profiles of Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to user role of Editor and below.
+You also have the ability to choose which menus are visible.  We have 3 CMS profiles available as presets: Website, Blog or Custom so you can modify the menu system to suit the CMS purpose. These only apply to the user role of Editor and below. Admins will see all menus.
 
 You can also give Editors access to the Menu and Widgets, but the switch theme option will not appear.
 
 White Label CMS allows you to remove all the panels from the WordPress dashboard and insert your own panel, which you can use to write 2 personalised messages to your client and link to the important elements in the CMS.
 
-It also allows you to add custom logos to the header and footer as well as the all important login page, giving your client a better branded experience of using their new website.
+It also allows you to add custom logos to the header and footer as well as the all important login page, giving your client a better branded experience of their new website.
 
-There is also the option to hide the nag updates as well.
+There is also the option to hide the nag update as well.
 
 No longer will you have to tell your clients to ignore the dashboard!
 
@@ -61,6 +59,12 @@ You can now brand the dashboard as well as the admin bar.
 5. Customize the homepage
 
 == Changelog ==
+
+= 1.5 =
+Added Custom RSS Feeds as new option
+Added Import/Export of settings feature.
+Updated CSS rules for wp-login.
+Minor bug fixes
 
 = 1.4.7 =
 Minor Bug introduced with WordPress 3.4 and custom login images. 

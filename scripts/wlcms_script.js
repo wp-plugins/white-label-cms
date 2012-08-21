@@ -79,7 +79,22 @@ jQuery(document).ready(function($){
 		var showHideWelcome;
 		var showHideAppearance;
 		var formField;
-		
+
+                //Showhide RSS
+                showHideRSS = jQuery('.wlcms_opts form #form-show-rss input:radio:checked').val();
+		if(showHideRSS == 0) {
+			jQuery('#vRSSSettings').hide();
+		}
+
+                jQuery('.wlcms_opts form #form-show-rss input:radio').click(function() {
+			showHideRSS = jQuery('.wlcms_opts form #form-show-rss input:radio:checked').val();
+			if(showHideRSS == 0) {
+				jQuery('#vRSSSettings').hide();
+			} else {
+				jQuery('#vRSSSettings').show();
+			}
+		});
+
 		// Showhide Welcome
 		showHideWelcome = jQuery('.wlcms_opts form #form-show-welcome input:radio:checked').val();
 		if(showHideWelcome == 0) {

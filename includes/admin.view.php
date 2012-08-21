@@ -233,7 +233,21 @@ case 'textarea':
   
 <?php
 break;
- 
+ case 'selectbox':
+?>
+
+<div class="wlcms_input wlcms_select">
+	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
+
+<select name="<?php echo $value['id']; ?>" id="<?php echo $value['id']; ?>">
+<?php foreach ($value['options'] as $role => $option) { ?>
+		<option value="<?php echo $role;?>"<?php if (get_option( $value['id'] ) == $role) { echo 'selected="selected"'; } elseif ($role==$value['std']) {echo 'selected="selected"';} ?>><?php echo $option; ?></option><?php } ?>
+</select>
+
+	<small><?php echo $value['desc']; ?></small><div class="clearfix"></div>
+</div>
+<?php
+break;
 case 'select':
 ?>
 
@@ -389,7 +403,9 @@ case "radio":
 ?>
 
 <div class="wlcms_input wlcms_radio" <?php if($value['id'] == 'wlcms_o_show_welcome') { echo ' id="form-show-welcome" '; }?>
-<?php if($value['id'] == 'wlcms_o_editor_template_access') { echo ' id="form-show-template" '; }?>>
+<?php if($value['id'] == 'wlcms_o_editor_template_access') { echo ' id="form-show-template" '; }?>
+<?php if($value['id'] == 'wlcms_o_show_rss_widget') { echo ' id="form-show-rss" '; }?>
+     >
 	<label for="<?php echo $value['id']; ?>"><?php echo $value['name']; ?></label>
 
 <?php 
@@ -509,27 +525,107 @@ case "subsectionvars":
 </form>
  </div> 
  
-<form method="post" style="margin-top:15px;">
-<p class="submit" id="wlcm-reset">
-Click here to reset the plugin: 
-<input name="reset" type="submit" value="Reset" />
-<input type="hidden" name="action" value="reset" />
+<p style="margin-top:0px;" class="submit">
+    <a href="" onclick="return false;" class="importbtn">Import your settings</a> |
+    <a href="" onclick="return false;" class="exportbtn">Export your settings</a> |
+    <a onclick="if(confirm('Are you sure you want to reset?')){return true;}return false;" href="?page=wlcms-plugin.php&amp;action=reset">Reset the plugin </a> </p>
 
-</p>
-</form> 
+<form method="post" action="?page=wlcms-plugin.php&amp;action=import" enctype="multipart/form-data" id="importform" style="display:none">
+	Import File: <input type="file" name="wlcms_import" />
+	<input type="submit" value="Import" />
+</form>
+
+<form method="get" action="" id="exportopts" style="display:none">
+
+
+    <p> 
+        Do you want to include images that were added using the media upload button? (If you choose yes, the image path will point to this domain)
+    </p>
+
+    <p>
+        <input type="radio" name="wlcms_export_imgs" value="yes" /> Yes
+        <input type="radio" name="wlcms_export_imgs" value="no" checked="checked" /> No
+        <input type="radio" name="wlcms_export_imgs" value="partial" /> Partial (the domain name will be updated and you will need to upload the images to the new domain)
+
+    </p>
+
+    
+    <input type="hidden" name="page" value="wlcms-plugin.php" />
+    <input type="hidden" name="action" value="export" />
+
+    <input type="submit" value="Export" />
+
+</form>
 
 <?php 
 if (!get_option('wpm_o_user_id')):
-?>
- <p>This plugin is brought to you by the: <a href="http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmbrought">WordPress User Manual Plugin</a> from <a href="http://www.videousermanuals.com/white-label-cms/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmscom">videousermanuals.com</a>.</p>
 
-<a href="http://www.videousermanuals.com/?utm_source=wlcmsplugin&amp;utm_medium=wpplugin&amp;utm_campaign=wlcmsad"> <img src="<?php echo plugins_url('images/wlcms-plugin-advert.jpg', dirname(__FILE__)); ?>"></a>
+    global $current_user;
+    get_currentuserinfo();
+
+
+
+?>
+<br />
+<img src="<?php echo plugins_url('images/wlcms-plugin-advert.png', dirname(__FILE__)); ?>">
+
+<form method="post" style="width:720px;" onsubmit="return quickValidate()"  action="http://www.aweber.com/scripts/addlead.pl" target="_blank" >
+<div style="display: none;">
+<input type="hidden" name="meta_web_form_id" value="720447695" />
+<input type="hidden" name="meta_split_id" value="" />
+<input type="hidden" name="listname" value="vumpublic2" />
+<input type="hidden" name="redirect" value="http://www.videousermanuals.com/subscription/free-report-response/" id="redirect_9ef7e9b7e6df8e5b029a1e0ace3b3e34" />
+<input type="hidden" name="meta_adtracking" value="wlcms-plugin" />
+<input type="hidden" name="meta_message" value="1" />
+<input type="hidden" name="meta_required" value="name,email" />
+<input type="hidden" name="meta_tooltip" value="" />
+</div>
+<table style="text-align:center;margin-left: 20px;">
+<tr>
+<td><label class="previewLabel" for="awf_field-37978044"><strong>Name: </strong></label><input id="sub_name" type="text" name="name" class="text"  tabindex="500" value="<?php echo $current_user->user_firstname. ' '. $current_user->user_lastname; ?>" /></td>
+<td><label class="previewLabel" for="awf_field-37978045"><strong>Email: </strong></label> <input class="text" id="sub_email" type="text" name="email" tabindex="501"  value="<?php echo $current_user->user_email;?>" /></td>
+<td><span class="submit"><input name="submit" type="image" alt="submit" tabindex="502" src="<?php echo plugins_url('images/download-button.png', dirname(__FILE__)); ?>" width="157" height="40" style="background: none; border: 0;" /></span></td>
+</tr>
+<tr>
+<td colspan="3" style="padding-top: 20px;">
+<a title="Privacy Policy" href="http://www.aweber.com/permission.htm" target="_blank"><img src="<?php echo plugins_url('images/privacy.png', dirname(__FILE__)); ?>"  alt="" title="" /></a>
+</td>
+</tr>
+</table>
+</form>
 <?php
 endif;
 ?>
 </div>
 
     <script type="text/javascript">
+
+function quickValidate()
+{
+        if (! jQuery('#sub_name').val() ) 
+            {
+                alert('Your Name is required');
+                return false; 
+            }
+        if(! jQuery('#sub_email').val() )
+            {
+                alert('Your Email is required');
+                return false; 
+            }
+
+            return true;
+            
+}
+
+        jQuery('.importbtn').click(function(){
+            jQuery('#importform').slideDown();
+        });
+
+        jQuery('.exportbtn').click(function(){
+            jQuery('#exportopts').slideDown();
+        });
+
+
 jQuery(document).ready(function($) {
 		// Upload function goes here
 
