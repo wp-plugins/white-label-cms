@@ -8,9 +8,9 @@ Author URI: http://www.videousermanuals.com
 Author:  Video User Manuals
 Donate link: 
 Requires at least: 3.3 
-Tested up to: 3.3.1
-Stable tag: 1.4.6
-Version: 1.4.6
+Tested up to: 3.4.1
+Stable tag: 1.4.7
+Version: 1.4.7
 
 Allows customization of dashboard and logos, removal of menus, giving editors access to widgets and menus plus lots more.
 
@@ -61,6 +61,10 @@ You can now brand the dashboard as well as the admin bar.
 5. Customize the homepage
 
 == Changelog ==
+
+= 1.4.7 =
+Minor Bug introduced with WordPress 3.4 and custom login images. 
+Also added conditionals to prevent any errors with user capabilities. 
 
 = 1.4.6 =
 Patch submitted by Chris @ iThemes. Better support for users of iThemes.
