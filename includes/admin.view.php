@@ -3,7 +3,7 @@
  
 <div class="wlcms_opts">
  
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" <?php echo admin_url( 'options-general.php?page=wlcms-plugin.php' );?> >
 <input type="hidden" name="wlcms_" value="<?php echo WLCMS; ?>" />
 <?php foreach ($wlcmsOptions as $value) {
 switch ( $value['type'] ) {
@@ -530,12 +530,12 @@ case "subsectionvars":
     <a href="" onclick="return false;" class="exportbtn">Export your settings</a> |
     <a onclick="if(confirm('Are you sure you want to reset?')){return true;}return false;" href="?page=wlcms-plugin.php&amp;action=reset">Reset the plugin </a> </p>
 
-<form method="post" action="?page=wlcms-plugin.php&amp;action=import" enctype="multipart/form-data" id="importform" style="display:none">
+<form method="post" action="<?php echo admin_url( 'options-general.php?page=wlcms-plugin.php&amp;action=import' );?>" enctype="multipart/form-data" id="importform" style="display:none">
 	Import File: <input type="file" name="wlcms_import" />
 	<input type="submit" value="Import" />
 </form>
 
-<form method="get" action="" id="exportopts" style="display:none">
+<form method="get" action="<?php echo admin_url( 'options-general.php?page=wlcms-plugin.php' );?>" id="exportopts" style="display:none">
 
 
     <p> 
@@ -574,7 +574,7 @@ if (!get_option('wpm_o_user_id')):
 <input type="hidden" name="meta_web_form_id" value="720447695" />
 <input type="hidden" name="meta_split_id" value="" />
 <input type="hidden" name="listname" value="vumpublic2" />
-<input type="hidden" name="redirect" value="http://www.videousermanuals.com/subscription/free-report-response/" id="redirect_9ef7e9b7e6df8e5b029a1e0ace3b3e34" />
+<input type="hidden" name="redirect" value="http://www.aweber.com/thankyou-coi.htm?m=video" id="redirect_892b1b4c503ba1b3c51e7aec7f2e5036" />
 <input type="hidden" name="meta_adtracking" value="wlcms-plugin" />
 <input type="hidden" name="meta_message" value="1" />
 <input type="hidden" name="meta_required" value="name,email" />
