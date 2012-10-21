@@ -6,11 +6,10 @@ Plugin URI: http://www.videousermanuals.com/white-label-cms/
 Tags: cms, custom, admin, branding, dashboard, administration, plugin, login, client, menu, navigation, appearance, menus, widgets
 Author URI: http://www.videousermanuals.com
 Author:  Video User Manuals
-Donate link: 
 Requires at least: 3.3 
-Tested up to: 3.4.1
-Stable tag: 1.5
-Version: 1.5
+Tested up to: 3.4.2
+Stable tag: 1.5.1
+Version: 1.5.1
 
 Allows complete customization of dashboard panels and logos, removal of menus, giving editors access to widgets and menus plus lots more. Import/export your settings and include an RSS panel on the dashboard to feed your clients the latest posts from your blog to keep you top of mind whenever they login to their dashboard.
 
@@ -59,6 +58,9 @@ You can now brand the dashboard as well as the admin bar.
 5. Customize the homepage
 
 == Changelog ==
+
+= 1.5.1 =
+Security patch - added nonce to admin form for better security. Props PC SJJ. 
 
 = 1.5 =
 Added Custom RSS Feeds as new option

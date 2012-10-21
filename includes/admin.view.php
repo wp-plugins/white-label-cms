@@ -4,6 +4,7 @@
 <div class="wlcms_opts">
  
 <form method="post" enctype="multipart/form-data" <?php echo admin_url( 'options-general.php?page=wlcms-plugin.php' );?> >
+<?php wp_nonce_field( 'wlcms-update_settings' ); ?>
 <input type="hidden" name="wlcms_" value="<?php echo WLCMS; ?>" />
 <?php foreach ($wlcmsOptions as $value) {
 switch ( $value['type'] ) {
