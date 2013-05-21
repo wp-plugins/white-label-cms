@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: White Label CMS
-Plugin URI: http://www.videousermanuals.com/white-label-cms/
+Plugin URI: http://www.videousermanuals.com/white-label-cms/?utm_campaign=wlcms&utm_medium=plugin&utm_source=readme-txt
 Description:  A plugin that allows you to brand wordpress CMS as your own
 Version: 1.5.1
 Author: www.videousermanuals.com
-Author URI: http://www.videousermanuals.com
+Author URI: http://www.videousermanuals.com/?utm_campaign=wlcms&utm_medium=plugin&utm_source=readme-txt
 */
 
 define('WLCMS','1.5.1');
@@ -68,29 +68,29 @@ function wlcms_dashboard_mod()
 
         if( get_option('wlcms_o_dashboard_override') || get_option('wlcms_o_dashboard_override') == '' ) :
 
-			if ( get_option('wlcms_o_dashboard_override') != __('Dashboard') ) :
+            if ( get_option('wlcms_o_dashboard_override') != __('Dashboard') ) :
 
-				$val = (get_option('wlcms_o_dashboard_override') == '' ? '&nbsp;' : get_option('wlcms_o_dashboard_override') );
-				echo '<style type="text/css">#wpbody-content .wrap h2 { visibility: hidden; }</style>
-						<script type="text/javascript">
-								jQuery(document).ready(function($) {
-										$("#wpbody-content .wrap h2:eq(0)").html("'.$val.'");
-										$("#wpbody-content .wrap h2").css("visibility","visible");
-								});
-						</script>';
-						
-				endif;
-						
+                $val = (get_option('wlcms_o_dashboard_override') == '' ? '&nbsp;' : get_option('wlcms_o_dashboard_override') );
+                echo '<style type="text/css">#wpbody-content .wrap h2 { visibility: hidden; }</style>
+                        <script type="text/javascript">
+                                jQuery(document).ready(function($) {
+                                        $("#wpbody-content .wrap h2:eq(0)").html("'.$val.'");
+                                        $("#wpbody-content .wrap h2").css("visibility","visible");
+                                });
+                        </script>';
+                        
+                endif;
+                        
         endif;
 
-    	if( get_option('wlcms_o_header_custom_logo') ):
+        if( get_option('wlcms_o_header_custom_logo') ):
 
             $background =  get_option('wlcms_o_header_custom_logo');
 
             if(!preg_match("@^https?://@", $background)){
-		$background = get_bloginfo('stylesheet_directory').'/images/'.$background;
+        $background = get_bloginfo('stylesheet_directory').'/images/'.$background;
             }
-		
+        
             echo '<style type="text/css">
                             #icon-index {background:transparent;height:auto;width:auto;visibility: hidden;}
                             #dashboard-widgets-wrap {clear:both}
@@ -101,10 +101,10 @@ function wlcms_dashboard_mod()
                                     $("#icon-index").css("visibility","visible");                                    
                             });
                     </script>';
-    	endif;
+        endif;
     
     endif;
-	
+    
 }
 
 // set admin screen
@@ -179,7 +179,7 @@ function wlcms_output()
 
         foreach($all_caps as $capability)
         {
-            $checked = isset($WP_Roles->roles[$role_id]['capabilities'][$capability])&&$WP_Roles->roles[$role_id]['capabilities']			[$capability]==1?'checked="checked"':'';
+            $checked = isset($WP_Roles->roles[$role_id]['capabilities'][$capability])&&$WP_Roles->roles[$role_id]['capabilities']           [$capability]==1?'checked="checked"':'';
             $output .= "<li><input type=\"checkbox\" $checked name=\"ROLES[$role_id][$capability]\" value=1 />&nbsp;".ucfirst(str_replace("_"," ",$capability))."</li>&nbsp; ";
         }
 
@@ -277,7 +277,7 @@ function wlcms_adminbar()
         }
 
         if (( version_compare( $wp_version, '3.2', '<' ) ) && (empty($customHFHeight))) {
-               $style .= '#wlcms-footer-container { 	padding-top: 10px; 	line-height: 30px; }';
+               $style .= '#wlcms-footer-container {     padding-top: 10px;  line-height: 30px; }';
         }
 
         if (get_option('wlcms_o_header_logo_link') == 1) {
@@ -309,17 +309,17 @@ function wlcms_remove_footer_admin() {
                 echo '<a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">';
 
                 if (get_option('wlcms_o_footer_custom_logo_width')) {
-        	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
-        	} else {
-        		echo '<img ';
-        	}
+                echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
+            } else {
+                echo '<img ';
+            }
            echo ' src="'.$footer_logo. '" id="wlcms-footer-logo"> </a> <span> <a target="_blank" href="' . get_option('wlcms_o_developer_url') . '">' . stripslashes(get_option('wlcms_o_developer_name')) . '</a> </span>';
         } else {
-        	if (get_option('wlcms_o_footer_custom_logo_width')) {
-        	 	echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
-        	} else {
-        		echo '<img ';
-        	}        
+            if (get_option('wlcms_o_footer_custom_logo_width')) {
+                echo '<img style="width:' . get_option('wlcms_o_footer_custom_logo_width') . 'px;" ';
+            } else {
+                echo '<img ';
+            }        
             echo ' src="'.$footer_logo . '" id="wlcms-footer-logo"> <span>' . stripslashes(get_option('wlcms_o_developer_name')).'</span>';
         }
         echo '</div><p id="safari-fix"';
@@ -376,7 +376,7 @@ function wlcms_custom_login_logo()
     if(get_option('wlcms_o_login_bg_css')):
         echo '<script type="text/javascript"> jQuery(document).ready(function(){ jQuery("#login").wrap("<div id=\'wlcms-login-wrapper\'></div>"); }); </script> ';
     endif;
-	
+    
 }
  
 function wlcms_custom_dashboard_help()
@@ -460,7 +460,7 @@ function wlcms_hide_wp_version()
 {
     echo '<style type="text/css">#wp-version-message { display: none;}</style>';
 }
-	
+    
 function wlcms_get_current_user_role() {
     global $wp_roles;
     $current_user = wp_get_current_user();
@@ -569,7 +569,7 @@ function wlcms_remove_admin_menus () {
         endif;
     endif;
 
-}	
+}   
  
 function wlcms_custom_pages_columns($defaults) 
 {
@@ -648,7 +648,7 @@ function wlcms_remove_default_post_metaboxes()
 
 function wlcms_add_admin() 
 {
-	
+    
     global $wlcmsThemeName, $wlcmsShortName, $menu, $submenu;
 
     if ( isset($_GET['page']) && $_GET['page'] == 'wlcms-plugin.php')
