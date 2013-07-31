@@ -1,8 +1,12 @@
-<div class="wrap wlcms_wrap">
+<div class="wrap wlcms_wrap" style="width:auto;">
 <h2>White Label CMS Settings</h2>
  
-<div class="wlcms_opts">
- 
+<div class="wlcms_opts" style="position:relative;">
+	<div id="wlcms-sidebar" style="position: absolute; top: 0; right: 0; width: 250px; border: 1px solid #ccc; padding: 20px;">
+		<a href="http://www.videousermanuals.com/rd/chris-lema-webinar/" target="_blank"><img src="<?php echo plugins_url('images/chris-lema-ad.png', dirname(__FILE__)); ?>" alt="Learn More" title="Learn More" /></a>
+	</div>
+	<div id="wlcms-container" style="margin-right: 320px;">
+			
 <form method="post" enctype="multipart/form-data" <?php echo admin_url( 'options-general.php?page=wlcms-plugin.php' );?> >
 <?php wp_nonce_field( 'wlcms-update_settings' ); ?>
 <input type="hidden" name="wlcms_" value="<?php echo WLCMS; ?>" />
@@ -496,7 +500,7 @@ $i++;
 ?>
 
 <div class="wlcms_section">
-<div class="wlcms_title"><h3><img src="<?php echo plugins_url('images/trans.png', dirname(__FILE__)); ?>" class="inactive" alt=""><?php echo $value['name']; ?></h3><span class="submit"><input name="save<?php echo $i; ?>" type="submit" value="Save changes" />
+<div class="wlcms_title"><h3><img src="<?php echo plugins_url('images/trans.png', dirname(__FILE__)); ?>" class="inactive" alt=""><?php echo $value['name']; ?></h3><span class="submit"><input name="save<?php echo $i; ?>" type="submit" style="font-size:10px" value="Save changes" />
 </span><div class="clearfix"></div></div>
 <div class="wlcms_options" style="display: none;">
 
@@ -567,26 +571,7 @@ if (!get_option('wpm_o_user_id')):
 
 
 ?>
-<br />
-<img src="<?php echo plugins_url('images/wlcms-plugin-advert.png', dirname(__FILE__)); ?>">
 
-<form method="post" style="width:720px;" onsubmit="return quickValidate()"  action="https://app.getresponse.com/add_contact_webform.html" target="_blank" >
-<div style="display: none;">
-<input type="hidden" name="webform_id" value="422775" />
-</div>
-<table style="text-align:center;margin-left: 20px;">
-<tr>
-<td><label class="previewLabel" for="awf_field-37978044"><strong>Name: </strong></label><input id="sub_name" type="text" name="name" class="text"  tabindex="500" value="" /></td>
-<td><label class="previewLabel" for="awf_field-37978045"><strong>Email: </strong></label> <input class="text" id="sub_email" type="text" name="email" tabindex="501"  value="" /></td>
-<td><span class="submit"><input name="submit" type="image" alt="submit" tabindex="502" src="<?php echo plugins_url('images/download-button.png', dirname(__FILE__)); ?>" width="157" height="40" style="background: none; border: 0;" /></span></td>
-</tr>
-<tr>
-<td colspan="3" style="padding-top: 20px;">
-<a title="Privacy Policy" href="http://www.getresponse.com/permission-seal?lang=en" target="_blank"><img src="<?php echo plugins_url('images/privacy.png', dirname(__FILE__)); ?>"  alt="" title="" /></a>
-</td>
-</tr>
-</table>
-</form>
 <?php
 endif;
 ?>
