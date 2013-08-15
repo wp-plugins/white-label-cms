@@ -3,7 +3,29 @@
  
 <div class="wlcms_opts" style="position:relative;">
 	<div id="wlcms-sidebar" style="position: absolute; top: 0; right: 0; width: 250px; border: 1px solid #ccc; padding: 20px;">
-		<a href="http://www.videousermanuals.com/rd/chris-lema-webinar/" target="_blank"><img src="<?php echo plugins_url('images/chris-lema-ad.png', dirname(__FILE__)); ?>" alt="Learn More" title="Learn More" /></a>
+		<img src="<?php echo plugins_url('images/better-ebooks-ad.png', dirname(__FILE__)); ?>" alt="Better WordPress For Clients" title="Better WordPress For Clients" />
+	
+		<form method="post" onsubmit="return quickValidate()"  action="https://app.getresponse.com/add_contact_webform.html" target="_blank" >
+		<div style="display: none;">
+		<input type="hidden" name="webform_id" value="422775" />
+		</div>
+		<table style="text-align:left;margin-left: 20px;">
+		<tr>
+		<td><strong>Name: </strong><input id="sub_name" type="text" name="name" class="text"  tabindex="500" value="" style="width: 170px;"/></td>
+		</tr>
+		<tr>
+		<td><strong>Email: </strong>&nbsp;<input class="text" id="sub_email" type="text" name="email" tabindex="501"  value="" style="width: 170px;" /></td>
+		</tr>
+		<tr>
+		<td style="text-align:center"><span class="submit"><input name="submit" type="image" alt="submit" tabindex="502" src="<?php echo plugins_url('images/download-button.png', dirname(__FILE__)); ?>" width="157" height="40" style="background: none; border: 0;" /></span></td>
+		</tr>
+		<tr>
+		<td style="padding-top: 20px;text-align:center;">
+		<a title="Privacy Policy" href="http://www.getresponse.com/permission-seal?lang=en" target="_blank"><img src="<?php echo plugins_url('images/privacy.png', dirname(__FILE__)); ?>"  alt="" title="" /></a>
+		</td>
+		</tr>
+		</table>
+		</form>	
 	</div>
 	<div id="wlcms-container" style="margin-right: 320px;">
 			
