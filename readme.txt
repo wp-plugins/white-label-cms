@@ -7,7 +7,7 @@ Tags: cms, custom, admin, branding, dashboard, administration, plugin, login, cl
 Author URI: http://www.videousermanuals.com/?utm_campaign=wlcms&utm_medium=plugin&utm_source=readme-txt
 Author:  Video User Manuals
 Requires at least: 3.3 
-Tested up to: 4.1
+Tested up to: 4.2
 Stable tag: 1.5.2
 Version:1.5.2
 
